@@ -1,0 +1,17 @@
+[project]
+name = "aprendizaje-automatico-2c2026"
+version = "0.1.0"
+description = "Repo para la materia 'Aprendizaje Automático'"
+readme = "README.md"
+authors = [
+    { name = "Gerardo1909", email = "gerardotoboso1909@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+aprendizaje-automatico-2c2026 = "aprendizaje_automatico_2c2026:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
