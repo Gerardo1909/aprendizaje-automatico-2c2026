@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Vista HTML de las explicaciones: se regenera con
+# 'preparar_clase.py html --slug <slug>'
+src/notebooks/explained/*.html
