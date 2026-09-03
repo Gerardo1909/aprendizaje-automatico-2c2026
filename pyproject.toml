@@ -7,11 +7,16 @@ authors = [
     { name = "Gerardo1909", email = "gerardotoboso1909@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "ipykernel>=7.3.0",
+    "ipywidgets>=8.1.9",
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.2",
+    "pandas>=3.0.5",
+    "scikit-learn>=1.9.0",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.15.0",
+]
 
-[project.scripts]
-aprendizaje-automatico-2c2026 = "aprendizaje_automatico_2c2026:main"
-
-[build-system]
-requires = ["uv_build>=0.12.5,<0.13.0"]
-build-backend = "uv_build"
+[tool.uv]
+package = false

@@ -12,6 +12,28 @@ La idea es seguir el siguiente flujo:
 
 >  Algo trasversal que deberia ocurrir con toda esta linea de notebooks y archivos .md es que todos tienen el mismo nombre en cada uno de los 3 directorios, los diferencia su ruta absoluta dentro del repo.
 
+## Entorno
+
+Un único entorno [uv](https://docs.astral.sh/uv/) en la raíz del repo, declarado
+en `pyproject.toml` (Python >= 3.14). Para levantarlo:
+
+```bash
+uv sync                         # crea .venv y lo deja igual a uv.lock
+uv run jupyter lab              # notebooks con el kernel del proyecto
+```
+
+En VS Code / Cursor basta con elegir `.venv` como intérprete y las notebooks de
+`src/notebooks/exercises` toman ese kernel.
+
+Las dependencias de ML se agregan a medida que las clases las pidan:
+
+```bash
+uv add statsmodels              # queda registrado en pyproject.toml + uv.lock
+```
+
+El script `preparar_clase.py` sigue usando solo biblioteca estándar; se puede
+correr con `python3` sin activar el entorno.
+
 ## Herramientas
 
 El flujo de arriba está automatizado en la skill **`/clase`** (vive en
