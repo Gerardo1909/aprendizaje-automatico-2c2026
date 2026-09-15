@@ -1,7 +1,10 @@
-# Plantilla del `.md` explicado
+# Plantilla de la notebook explicada
 
-El script ya deja el esqueleto. Este archivo muestra **cómo se ve una sección
-bien escrita**, para que el tono y la profundidad no cambien entre clases.
+El script ya deja el esqueleto (`.ipynb`, con celdas markdown y de código
+vacías). Este archivo muestra **cómo se ve una sección bien escrita**, para
+que el tono y la profundidad no cambien entre clases — y cómo se reparte ese
+contenido entre celdas markdown, celdas de código ejecutadas de verdad, y
+figuras embebidas.
 
 > ⚠️ **Esto fija tono y profundidad, nunca contenido.** El ejemplo desarrollado
 > sale de la clase de regresión lineal. Si estás escribiendo justamente esa
@@ -13,19 +16,31 @@ bien escrita**, para que el tono y la profundidad no cambien entre clases.
 
 ## Estructura completa
 
+El contenido no cambió respecto de un `.md`; lo que cambia es que ahora está
+repartido en **celdas** de un `.ipynb`, y las de código se ejecutan de verdad.
+
 ```
-# <N> — <Título limpio de la clase>
-📓 Notebook · ✏️ Ejercicios · 📕 ESL
-
-> **TL;DR** (5 bullets)
-
-## 🗺️ Mapa de la clase        tabla bloque → sección (checklist de cobertura)
-## 0. Notación y convenciones  (solo si la clase introduce notación nueva)
-## 1..N. <Secciones temáticas> (el patrón de 5 pasos)
+[markdown] # <N> — <Título limpio de la clase>
+           📓 Notebook · ✏️ Ejercicios · 📕 ESL
+           > **TL;DR** (5 bullets)
+           ## 🗺️ Mapa de la clase   tabla bloque → sección (checklist de cobertura)
+[código]   Setup: sns.set_theme(...) + rcParams — ver referencias/estilo_graficos.md
+[markdown] ## 0. Notación y convenciones  (solo si la clase introduce notación nueva)
+[markdown] ## 1..N. <Secciones temáticas>: idea en criollo + formalizándolo + por qué importa
+[markdown] (si hay figura real) ![...](../../figuras/<archivo>.png) + qué mirar en ella
+[código]   En código: snippet ejecutado, con su salida (print, tabla, gráfico)
+[markdown] ⚠️ Confusión típica · ❓ pregunta abierta (condicionales)
 ## 🧵 El hilo conductor
 ## ✅ Autoevaluación
 ## 🎯 Centros para los ejercicios
 ```
+
+La celda de **Setup** va una sola vez, arriba de todo, antes de la primera
+sección. De ahí en más el patrón de cada sección temática se repite: una o más
+celdas markdown para la parte conceptual, la figura si existe, una celda de
+código para "En código", y markdown de cierre para confusión típica / pregunta
+abierta. No hace falta una celda de código por sección si es puramente
+conceptual — mismo criterio que en `SKILL.md`.
 
 ---
 
@@ -144,6 +159,10 @@ comparás todo lo demás.
 
 #### En código
 
+Esta es una **celda de código real**, que se ejecuta con
+`jupyter nbconvert --execute` antes de dar la sección por terminada. Lo que
+sigue no es el snippet: es snippet + la salida que realmente produjo.
+
 ```python
 import numpy as np
 
@@ -153,13 +172,39 @@ XtX, Xty = X.T @ X, X.T @ y
 beta_mal = np.linalg.inv(XtX) @ Xty   # ❌ traduce la fórmula, pero no se hace así
 beta_ok = np.linalg.solve(XtX, Xty)   # ✅ resuelve el sistema sin invertir nada
 beta_mejor, *_ = np.linalg.lstsq(X, y, rcond=None)  # ✅✅ ni siquiera forma X^T X
+
+print(np.allclose(beta_mal, beta_ok), np.allclose(beta_ok, beta_mejor))
+```
+```
+True True
 ```
 
-Los tres dan lo mismo con datos bien portados. Cuando las columnas de
-$\mathbf{X}$ están muy correlacionadas, `inv` amplifica el error numérico: al
-formar $\mathbf{X}^T\mathbf{X}$ el condicionamiento se **eleva al cuadrado**.
-`lstsq` trabaja directo sobre $\mathbf{X}$ vía descomposición QR/SVD y esquiva
-el problema. Es lo que usa `sklearn` por dentro.
+Los tres dan lo mismo con datos bien portados (la salida de arriba lo
+confirma). Cuando las columnas de $\mathbf{X}$ están muy correlacionadas,
+`inv` amplifica el error numérico: al formar $\mathbf{X}^T\mathbf{X}$ el
+condicionamiento se **eleva al cuadrado**. `lstsq` trabaja directo sobre
+$\mathbf{X}$ vía descomposición QR/SVD y esquiva el problema.
+
+##### 🏭 Así se hace en la industria
+
+Cuando el punto de la sección ya quedó demostrado a mano, una celda corta
+muestra la versión de librería — con su salida real, no descripta:
+
+```python
+from sklearn.linear_model import LinearRegression
+
+modelo = LinearRegression().fit(X[:, 1:], y)  # sklearn agrega el intercepto solo
+print(modelo.intercept_, modelo.coef_)
+```
+```
+152.13 [ -10.01  -239.82   519.85  324.38 ...]
+```
+
+Es lo que usa `sklearn` por dentro: mismo resultado que `lstsq`, con la API
+que se usa en la práctica. Esta celda no reemplaza la de arriba — va
+**después**, como puente entre la cuenta y la herramienta real. No la agregues
+si la sección ya no tiene más que aportar (una sección puramente conceptual
+no necesita forzar una comparación con librería).
 
 #### ⚠️ Confusión típica
 
@@ -183,6 +228,30 @@ de $\mathbf{X}$. Si tiene rango columna completo, es $p+1$ —una dimensión por
 predictor más el intercepto—. Si dos columnas son linealmente dependientes, es
 menos, y ese es exactamente el caso en que $(\mathbf{X}^T\mathbf{X})^{-1}$ no
 existe. Las dos preguntas eran la misma pregunta.
+
+---
+
+## Ejemplo de figura embebida
+
+Cuando el mapa dice que la imagen **sí está** en `src/figuras/`, la celda de
+la figura va así — imagen primero, después qué mirar en ella:
+
+```
+#### 🖼️ La figura de la clase
+
+![Proyección de y sobre el espacio columna de X](../../figuras/Geometría cuadrados mínimos.png)
+
+Fijate en el ángulo recto entre $\mathbf{y} - \hat{\mathbf{y}}$ (el vector de
+residuos) y el plano que generan las columnas de $\mathbf{X}$. Ese ángulo recto
+*es* la ecuación normal $\mathbf{X}^T(\mathbf{y} - \mathbf{X}\hat\beta) = 0$
+dibujada: dice que el residuo es ortogonal a **todas** las columnas de
+$\mathbf{X}$ a la vez, no a una por una.
+```
+
+La ruta es relativa desde `src/notebooks/explained/`, por eso sube dos
+niveles (`../../`) antes de entrar a `figuras/`. Si el mapa dice que la imagen
+**no está**, no escribas el `![...]`: describí en palabras qué mostraba, tal
+como se hacía antes (ver `SKILL.md`, sección "Figuras").
 
 ---
 

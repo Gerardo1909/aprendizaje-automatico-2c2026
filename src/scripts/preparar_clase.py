@@ -6,7 +6,7 @@ Hace la parte mecanica y determinista del flujo descrito en el README:
     src/notebooks/raw/<nombre crudo>.ipynb
         -> src/notebooks/raw/<slug>.ipynb          (renombrado normalizado)
         -> src/notebooks/exercises/<slug>.ipynb    (enunciados + placeholders)
-        -> src/notebooks/explained/<slug>.md       (esqueleto a completar)
+        -> src/notebooks/explained/<slug>.ipynb    (esqueleto a completar y ejecutar)
 
 La explicacion pedagogica no se genera aca: la escribe Claude siguiendo la
 skill `clase` (.claude/skills/clase/SKILL.md). Este script solo le prepara el
@@ -39,6 +39,7 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 DIR_RAW = RAIZ / "src" / "notebooks" / "raw"
 DIR_EXPLAINED = RAIZ / "src" / "notebooks" / "explained"
 DIR_EXERCISES = RAIZ / "src" / "notebooks" / "exercises"
+DIR_FIGURAS = RAIZ / "src" / "figuras"
 
 RE_SLUG = re.compile(r"^\d+_[a-z0-9_]+$")
 RE_HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*$", re.MULTILINE)
@@ -168,16 +169,32 @@ def construir_mapa(nb: dict, titulo: str = "") -> dict:
             bloques.append({"titulo": " › ".join(clave), "celdas": [i, i]})
         clave_actual = clave
 
+    referenciadas = sorted({img for c in celdas for img in c["imagenes"]})
+
     return {
         "total_celdas": len(celdas),
         "titulo_clase": titulo or tema_portada(nb) or "Clase sin título",
         "tema_portada": tema_portada(nb),
         "bloques": bloques,
         "celdas": celdas,
-        "figuras_referenciadas": sorted(
-            {img for c in celdas for img in c["imagenes"]}
-        ),
+        "figuras_referenciadas": referenciadas,
+        "figuras_disponibles": {img: buscar_figura(img) for img in referenciadas},
     }
+
+
+def buscar_figura(referencia: str) -> str | None:
+    """Busca en src/figuras/ el archivo que citaba la notebook cruda.
+
+    La notebook cruda referencia rutas tipo 'Figuras/<archivo>.png'; acá esa
+    carpeta se llama 'src/figuras/'. Compara solo el nombre de archivo (sin la
+    carpeta), asi que un cambio de mayusculas/carpeta no rompe la busqueda.
+    Devuelve la ruta relativa a la raiz del repo si existe, o None.
+    """
+    nombre = Path(referencia).name
+    candidato = DIR_FIGURAS / nombre
+    if candidato.exists():
+        return str(candidato.relative_to(RAIZ))
+    return None
 
 
 def tema_portada(nb: dict) -> str:
@@ -316,11 +333,11 @@ def construir_notebook_ejercicios(nb: dict, ejercicios: list[dict], slug: str,
     cabecera = (
         f"# Ejercicios — {titulo}\n"
         "\n"
-        f"- 📘 Explicación: [`../explained/{slug}.md`](../explained/{slug}.md)\n"
+        f"- 📘 Explicación: [`../explained/{slug}.ipynb`](../explained/{slug}.ipynb)\n"
         f"- 📓 Notebook de clase: [`../raw/{slug}.ipynb`](../raw/{slug}.ipynb)\n"
         "\n"
         "> Los enunciados están tal cual los dio la cátedra. Las pistas ("
-        "*centros*) están al final del `.md` explicado.\n"
+        "*centros*) están al final de la notebook explicada.\n"
     )
     celdas = [celda_md(cabecera)]
 
@@ -355,10 +372,10 @@ def construir_notebook_ejercicios(nb: dict, ejercicios: list[dict], slug: str,
 
 
 # --------------------------------------------------------------------------
-# Generacion del esqueleto .md
+# Generacion del esqueleto de la notebook explicada
 # --------------------------------------------------------------------------
 
-PATRON_BLOQUE = """## 1. <Título de la sección>
+PATRON_BLOQUE_MD = """## 1. <Título de la sección>
 
 📓 celdas <n>–<m> · 📕 ESL §<x.y>
 
@@ -373,26 +390,34 @@ PATRON_BLOQUE = """## 1. <Título de la sección>
 ### ¿Por qué nos importa?
 
 <!-- qué habilita / qué se rompe sin esto -->
+"""
 
-### En código
+PATRON_BLOQUE_CODE = """# En código: <qué muestra este snippet>
+# TODO: reemplazar por código real y ejecutable (ver referencias/estilo_graficos.md
+# si esta celda grafica algo). Correr nbconvert --execute antes de dar la sección
+# por terminada.
+"""
 
-<!-- snippet corto y ejecutable, comentado por el *porqué* -->
-
-### ⚠️ Confusión típica
+PATRON_BLOQUE_CIERRE_MD = """### ⚠️ Confusión típica
 
 <!-- el error que vas a cometer acá -->
 """
 
 
-def construir_esqueleto_md(mapa: dict, ejercicios: list[dict], slug: str, numero: int) -> str:
-    """Esqueleto del .md explicado.
+def construir_esqueleto_notebook(mapa: dict, ejercicios: list[dict], slug: str,
+                                 numero: int) -> dict:
+    """Esqueleto de la notebook explicada, como celdas de .ipynb.
 
     No pre-crea una seccion por bloque a proposito: estas notebooks son slides y
     tienen 30+ bloques, pero el documento de estudio necesita 5-10 secciones
     tematicas. La tabla del mapa lista *todos* los bloques y su ultima columna
     ("Dónde lo explico") es la que garantiza que ninguno quede huerfano.
+
+    Las celdas de codigo quedan vacias de contenido real (son placeholders):
+    quien escribe la notebook las completa y las ejecuta con
+    `jupyter nbconvert --execute` antes de darla por terminada.
     """
-    partes = [
+    intro = [
         f"# {numero} — {mapa['titulo_clase']}",
         "",
         f"📓 [Notebook de clase](../raw/{slug}.ipynb) · "
@@ -415,28 +440,39 @@ def construir_esqueleto_md(mapa: dict, ejercicios: list[dict], slug: str, numero
     for bloque in mapa["bloques"]:
         ini, fin = bloque["celdas"]
         rango = f"{ini}" if ini == fin else f"{ini}–{fin}"
-        partes.append(f"| {bloque['titulo']} | {rango} | §? |")
+        intro.append(f"| {bloque['titulo']} | {rango} | §? |")
 
+    disponibles = mapa.get("figuras_disponibles", {})
     if mapa["figuras_referenciadas"]:
-        partes += [
-            "",
-            "<!-- Figuras que la clase mostraba y que NO están en el repo.",
-            "     Describí en palabras qué mostraba cada una, dentro del bloque",
-            "     que corresponda:",
-        ]
-        partes += [f"       - {f}" for f in mapa["figuras_referenciadas"]]
-        partes += ["-->"]
+        encontradas = [f for f in mapa["figuras_referenciadas"] if disponibles.get(f)]
+        faltantes = [f for f in mapa["figuras_referenciadas"] if not disponibles.get(f)]
+        intro += ["", "<!-- Figuras que la clase mostraba:"]
+        if encontradas:
+            intro += ["     Están en src/figuras/: embebelas con"]
+            intro += [f"       - {disponibles[f]}  (referenciada como {f})" for f in encontradas]
+        if faltantes:
+            intro += ["     NO están en src/figuras/: describilas en palabras, sin imagen rota:"]
+            intro += [f"       - {f}" for f in faltantes]
+        intro += ["-->"]
 
-    partes += [
-        "",
-        "---",
+    intro += [
         "",
         "<!-- Si la clase introduce notación nueva, arrancá con una sección",
         "     '## 0. Notación y convenciones'. -->",
-        "",
-        PATRON_BLOQUE,
-        "<!-- ... repetí ese patrón para cada sección ... -->",
-        "",
+    ]
+
+    celdas = [celda_md("\n".join(intro))]
+
+    celdas.append(celda_code(
+        "# Setup — pegar acá el snippet de referencias/estilo_graficos.md\n"
+    ))
+
+    celdas.append(celda_md(PATRON_BLOQUE_MD))
+    celdas.append(celda_code(PATRON_BLOQUE_CODE))
+    celdas.append(celda_md(PATRON_BLOQUE_CIERRE_MD))
+    celdas.append(celda_md("<!-- ... repetí ese patrón (markdown + código + markdown) para cada sección ... -->"))
+
+    cierre = [
         "## 🧵 El hilo conductor",
         "",
         "<!-- cómo se encadena todo: de dónde venimos, hacia dónde vamos -->",
@@ -450,7 +486,7 @@ def construir_esqueleto_md(mapa: dict, ejercicios: list[dict], slug: str, numero
     ]
 
     for ej in ejercicios:
-        partes += [
+        cierre += [
             f"### Ejercicio {ej['numero']} — {ej['titulo']}",
             "",
             f"<!-- tipo detectado por el script: {ej['tipo_sugerido']} -->",
@@ -462,178 +498,14 @@ def construir_esqueleto_md(mapa: dict, ejercicios: list[dict], slug: str, numero
             "",
         ]
 
-    return "\n".join(partes)
+    celdas.append(celda_md("\n".join(cierre)))
 
-
-# --------------------------------------------------------------------------
-# Vista HTML (para visores que no renderizan LaTeX)
-# --------------------------------------------------------------------------
-
-# El .md se lee bien en GitHub y en editores con KaTeX (Cursor, VS Code), pero
-# hay visores -Zed, entre otros- que no procesan matematica y muestran el LaTeX
-# crudo. Esta plantilla envuelve el markdown tal cual, sin tocarlo, y lo
-# renderiza en el navegador con marked + MathJax.
-PLANTILLA_HTML = r"""<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>__TITULO__</title>
-<style>
-  :root {
-    --fondo: #ffffff; --texto: #1f2328; --tenue: #59636e; --borde: #d1d9e0;
-    --codigo-fondo: #f6f8fa; --cita: #f0f4f8; --acento: #0969da;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --fondo: #0d1117; --texto: #e6edf3; --tenue: #9198a1; --borde: #3d444d;
-      --codigo-fondo: #161b22; --cita: #161b22; --acento: #4493f8;
+    return {
+        "cells": celdas,
+        "metadata": {},
+        "nbformat": 4,
+        "nbformat_minor": 5,
     }
-  }
-  html { background: var(--fondo); }
-  body {
-    background: var(--fondo); color: var(--texto);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    font-size: 16px; line-height: 1.65;
-    max-width: 62rem; margin: 0 auto; padding: 2.5rem 1.5rem 6rem;
-  }
-  h1, h2, h3, h4 { line-height: 1.3; margin: 2em 0 .6em; font-weight: 600; }
-  h1 { font-size: 2em; border-bottom: 1px solid var(--borde); padding-bottom: .3em; margin-top: 0; }
-  h2 { font-size: 1.5em; border-bottom: 1px solid var(--borde); padding-bottom: .3em; }
-  h3 { font-size: 1.2em; }
-  h4 { font-size: 1em; color: var(--tenue); }
-  a { color: var(--acento); }
-  hr { border: 0; border-top: 1px solid var(--borde); margin: 2.5em 0; }
-  blockquote {
-    margin: 1.2em 0; padding: .8em 1.2em; background: var(--cita);
-    border-left: 4px solid var(--borde); border-radius: 0 6px 6px 0;
-  }
-  blockquote > :first-child { margin-top: 0; }
-  blockquote > :last-child { margin-bottom: 0; }
-  code {
-    background: var(--codigo-fondo); padding: .15em .4em; border-radius: 5px;
-    font-size: .88em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  pre {
-    background: var(--codigo-fondo); padding: 1em; border-radius: 8px;
-    overflow-x: auto; border: 1px solid var(--borde);
-  }
-  pre code { background: none; padding: 0; font-size: .85em; }
-  .tabla-scroll { overflow-x: auto; margin: 1.2em 0; }
-  table { border-collapse: collapse; }
-  th, td { border: 1px solid var(--borde); padding: .5em .8em; text-align: left; }
-  th { background: var(--codigo-fondo); font-weight: 600; }
-  details {
-    margin: .8em 0; padding: .7em 1em; background: var(--codigo-fondo);
-    border: 1px solid var(--borde); border-radius: 8px;
-  }
-  summary { cursor: pointer; font-weight: 600; }
-  details[open] summary { margin-bottom: .7em; }
-  mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .3em 0; }
-  #aviso {
-    display: none; background: #b3541e; color: #fff; padding: .8em 1.2em;
-    border-radius: 8px; margin-bottom: 2em;
-  }
-</style>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['$', '$']],
-      displayMath: [['$$', '$$']],
-      processEscapes: true,
-      tags: 'none'
-    },
-    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
-    startup: { typeset: false }
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
-</head>
-<body>
-<div id="aviso">No se pudieron cargar las librerías (marked / MathJax). Necesitás
-conexión a internet la primera vez; después quedan en la caché del navegador.</div>
-<div id="salida"></div>
-
-<script type="text/plain" id="fuente">__MARKDOWN__</script>
-
-<script>
-(function () {
-  var salida = document.getElementById('salida');
-  if (typeof marked === 'undefined') {
-    document.getElementById('aviso').style.display = 'block';
-    salida.innerHTML = '<pre></pre>';
-    salida.firstChild.textContent = document.getElementById('fuente').textContent;
-    return;
-  }
-
-  var crudo = document.getElementById('fuente').textContent;
-  var guardado = [];
-  function reservar(txt) { guardado.push(txt); return '@@BLOQUE' + (guardado.length - 1) + '@@'; }
-
-  // 1) Apartamos código para que el paso 2 no confunda un '$' de código con matemática.
-  var codigo = [];
-  crudo = crudo
-    .replace(/```[\s\S]*?```/g, function (m) { codigo.push(m); return '@@CODIGO' + (codigo.length - 1) + '@@'; })
-    .replace(/`[^`\n]*`/g, function (m) { codigo.push(m); return '@@CODIGO' + (codigo.length - 1) + '@@'; });
-
-  // 2) Apartamos la matemática para que marked no se coma los _ y los \ del LaTeX.
-  crudo = crudo
-    .replace(/\$\$[\s\S]*?\$\$/g, reservar)
-    .replace(/\$[^$\n]+?\$/g, reservar);
-
-  // 3) Devolvemos el código: ese sí lo tiene que renderizar marked.
-  crudo = crudo.replace(/@@CODIGO(\d+)@@/g, function (_, i) { return codigo[i]; });
-
-  var html = marked.parse(crudo, { gfm: true, breaks: false });
-
-  // 4) Reponemos la matemática ya convertida a HTML, para que la tome MathJax.
-  html = html.replace(/@@BLOQUE(\d+)@@/g, function (_, i) { return guardado[i]; });
-  salida.innerHTML = html;
-
-  // Las tablas anchas scrollean solas en vez de romper el ancho de la página.
-  salida.querySelectorAll('table').forEach(function (t) {
-    var caja = document.createElement('div');
-    caja.className = 'tabla-scroll';
-    t.parentNode.insertBefore(caja, t);
-    caja.appendChild(t);
-  });
-
-  function componer() {
-    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([salida]);
-    else setTimeout(componer, 150);
-  }
-  componer();
-})();
-</script>
-</body>
-</html>
-"""
-
-
-def cmd_html(args: argparse.Namespace) -> int:
-    md = DIR_EXPLAINED / f"{args.slug}.md"
-    if not md.exists():
-        print(f"error: no existe {md}", file=sys.stderr)
-        return 1
-
-    texto = md.read_text(encoding="utf-8")
-    titulo = texto.lstrip().split("\n", 1)[0].lstrip("# ").strip() or args.slug
-
-    # El markdown viaja dentro de un <script type="text/plain">, asi que lo unico
-    # que hay que neutralizar es una etiqueta de cierre que lo corte por la mitad.
-    seguro = texto.replace("</script>", "<\\/script>")
-
-    destino = DIR_EXPLAINED / f"{args.slug}.html"
-    destino.write_text(
-        PLANTILLA_HTML.replace("__TITULO__", titulo).replace("__MARKDOWN__", seguro),
-        encoding="utf-8",
-    )
-    print(f"escrito: {destino.relative_to(RAIZ)}")
-
-    if args.abrir:
-        subprocess.run(["open", str(destino)], check=False)
-    return 0
 
 
 # --------------------------------------------------------------------------
@@ -651,7 +523,7 @@ def cmd_detectar(_args: argparse.Namespace) -> int:
             slug = path.stem
             falta = [
                 d.name
-                for d, ext in ((DIR_EXPLAINED, ".md"), (DIR_EXERCISES, ".ipynb"))
+                for d, ext in ((DIR_EXPLAINED, ".ipynb"), (DIR_EXERCISES, ".ipynb"))
                 if not (d / f"{slug}{ext}").exists()
             ]
             if not falta:
@@ -693,7 +565,7 @@ def cmd_preparar(args: argparse.Namespace) -> int:
 
     numero = int(slug.split("_", 1)[0])
     destino_raw = DIR_RAW / f"{slug}.ipynb"
-    destino_md = DIR_EXPLAINED / f"{slug}.md"
+    destino_explained = DIR_EXPLAINED / f"{slug}.ipynb"
     destino_ej = DIR_EXERCISES / f"{slug}.ipynb"
 
     nb = cargar_nb(raw)
@@ -725,15 +597,17 @@ def cmd_preparar(args: argparse.Namespace) -> int:
         except (subprocess.CalledProcessError, FileNotFoundError):
             raw.rename(destino_raw)  # no trackeado o sin git disponible
 
-    # 2 y 3. Andamios derivados. Nunca se pisan sin --force: el .ipynb puede
-    # tener resoluciones ya escritas y el .md, la explicacion ya redactada.
+    # 2 y 3. Andamios derivados. Nunca se pisan sin --force: los dos .ipynb
+    # pueden tener resoluciones o explicacion ya escritas.
     escritos, saltados = [], []
 
     for destino, contenido in (
         (destino_ej, json.dumps(
             construir_notebook_ejercicios(nb, ejercicios, slug, mapa["titulo_clase"]),
             ensure_ascii=False, indent=1) + "\n"),
-        (destino_md, construir_esqueleto_md(mapa, ejercicios, slug, numero)),
+        (destino_explained, json.dumps(
+            construir_esqueleto_notebook(mapa, ejercicios, slug, numero),
+            ensure_ascii=False, indent=1) + "\n"),
     ):
         if destino.exists() and not args.force:
             saltados.append(str(destino.relative_to(RAIZ)))
@@ -797,7 +671,7 @@ def main() -> int:
     p.add_argument("--raw", required=True)
     p.add_argument("--slug", required=True)
     p.add_argument("--force", action="store_true",
-                   help="pisa el .md y el .ipynb si ya existen")
+                   help="pisa los .ipynb de explained/ y exercises/ si ya existen")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=cmd_preparar)
 
@@ -808,11 +682,6 @@ def main() -> int:
     p = subs.add_parser("fuentes", help="vuelca todas las celdas del raw, sin outputs")
     p.add_argument("--slug", required=True)
     p.set_defaults(func=cmd_fuentes)
-
-    p = subs.add_parser("html", help="genera una vista HTML del .md con las fórmulas renderizadas")
-    p.add_argument("--slug", required=True)
-    p.add_argument("--abrir", action="store_true", help="abrirla en el navegador")
-    p.set_defaults(func=cmd_html)
 
     args = parser.parse_args()
     return args.func(args)

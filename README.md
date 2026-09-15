@@ -6,11 +6,11 @@ La idea es seguir el siguiente flujo:
 
 1. Los notebooks que presentan en clase los bajo dentro de `src/notebooks/raw`, asi tal como vienen. Aqui una pequeña transformación que haremos es cambiar el nombre para normalizarlo, algo del estilo: "Introducción - Teoría de la Decisión" -> "1_intro_teoria_decision" y ese nombre es el que usamos para identificar a otros documentos relacionados
 
-2.  Mediante claude proceso el notebook "crudo" y genero una explicación, con analogías, ejemplos y otras referencias dentro de `src/notebooks/explained` . Esto es lo que leeria despues de una clase y antes de iniciar a hacer los ejercicios, me debería de dejar listo. El formato debe ser un .md, con sus snippets de codigo y formateo para hacerlo visual pero sin perder rigor tecnico
+2.  Mediante claude proceso el notebook "crudo" y genero una explicación, con analogías, ejemplos y otras referencias dentro de `src/notebooks/explained`. Esto es lo que leeria despues de una clase y antes de iniciar a hacer los ejercicios, me debería de dejar listo. El formato es un `.ipynb` **ejecutado**: los snippets de código corren de verdad y quedan con su salida (prints, tablas, gráficos), y las figuras de la clase que están guardadas en `src/figuras/` se embeben directo en las celdas. Todo sin perder rigor técnico.
 
 3. En paralelo con 2. la idea es que se genere un notebook que contenga unicamente los enunciados de los ejercicios dentro de `src/notebooks/exercises` y placeholders para posteriormente resolverlos. 
 
->  Algo trasversal que deberia ocurrir con toda esta linea de notebooks y archivos .md es que todos tienen el mismo nombre en cada uno de los 3 directorios, los diferencia su ruta absoluta dentro del repo.
+>  Algo trasversal que deberia ocurrir con toda esta linea de notebooks es que todos tienen el mismo nombre en cada uno de los 3 directorios, los diferencia su ruta absoluta dentro del repo.
 
 ## Entorno
 
@@ -43,7 +43,7 @@ máquina).
 ```
 /clase                          # detecta la notebook sin procesar en src/notebooks/raw
 /clase "Regresión Lineal..."    # procesa esa notebook
-/clase 2_regresion_lineal_...   # reescribe el .md de una clase ya procesada
+/clase 2_regresion_lineal_...   # reescribe la notebook explicada de una clase ya procesada
 ```
 
 Hace los tres pasos de una: renombra el crudo, genera el `.ipynb` de ejercicios
@@ -57,26 +57,22 @@ python3 src/scripts/preparar_clase.py detectar                        # qué fal
 python3 src/scripts/preparar_clase.py preparar --raw <ruta> --slug <slug>
 python3 src/scripts/preparar_clase.py mapa --slug <slug>              # mapa de celdas
 python3 src/scripts/preparar_clase.py fuentes --slug <slug>           # celdas sin outputs
-python3 src/scripts/preparar_clase.py html --slug <slug> --abrir      # vista con fórmulas
 ```
 
-### Ver las fórmulas
+Las notebooks de `explained/` son `.ipynb` normales: se abren y se leen directo
+en Jupyter, VS Code o Cursor, con LaTeX, imágenes y salidas ya renderizados —
+no hace falta ningún paso extra.
 
-Los `.md` de `explained/` usan LaTeX (`$...$` y `$$...$$`). Se renderizan solos
-en **GitHub** y en el preview de **Cursor / VS Code**, pero **Zed no procesa
-matemática** y muestra el LaTeX crudo. Para esos casos:
+### Figuras de la clase
 
-```bash
-python3 src/scripts/preparar_clase.py html --slug 1_intro_teoria_decision --abrir
-```
+Las imágenes que se muestran en clase (diagramas, gráficos de la cátedra) se
+guardan en `src/figuras/`. Cuando una clase referencia una imagen que está ahí,
+la skill la embebe directo en la notebook explicada; si no está guardada, la
+describe en palabras en vez de dejar una imagen rota.
 
-Genera un `.html` al lado del `.md` y lo abre en el navegador, con las fórmulas
-compuestas por MathJax. Es un archivo derivado y está en `.gitignore`: se
-regenera cuando haga falta. Necesita internet la primera vez (baja MathJax de
-un CDN); después queda en la caché del navegador.
-
-`preparar` nunca pisa un `.md` o un `.ipynb` que ya exista (usá `--force` si de
-verdad querés regenerarlos): los ejercicios pueden tener resoluciones escritas.
+`preparar` nunca pisa un `.ipynb` que ya exista en `explained/` o `exercises/`
+(usá `--force` si de verdad querés regenerarlos): pueden tener explicación o
+resoluciones ya escritas.
 
 ## Bibliografía para esta materia:
 

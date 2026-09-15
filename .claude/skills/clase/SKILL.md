@@ -5,11 +5,12 @@ description: Procesa una notebook de clase de Aprendizaje Automático - normaliz
 
 # Procesar una clase
 
-Convertís la notebook cruda de una clase en material de estudio: un `.md` que se
-lea como un profesor particular explicando el tema, y un `.ipynb` de ejercicios
-listo para resolver.
+Convertís la notebook cruda de una clase en material de estudio: una notebook
+**explicada y ejecutada** que se lea como un profesor particular explicando el
+tema, y un `.ipynb` de ejercicios listo para resolver.
 
-El `.md` es el 90% del trabajo. Todo lo demás es andamiaje que hace el script.
+La notebook explicada es el 90% del trabajo. Todo lo demás es andamiaje que
+hace el script.
 
 ## Argumentos
 
@@ -17,7 +18,7 @@ El `.md` es el 90% del trabajo. Todo lo demás es andamiaje que hace el script.
 |---|---|
 | `/clase` | Detecta la notebook sin procesar. Si hay más de una, preguntá cuál. |
 | `/clase "Regresión Lineal..."` | Procesa esa notebook cruda. |
-| `/clase 2_regresion_lineal_...` | Ya está procesada: reescribí o mejorá su `.md`. |
+| `/clase 2_regresion_lineal_...` | Ya está procesada: reescribí o mejorá su notebook explicada. |
 
 Todos los comandos se corren desde la raíz del repo.
 
@@ -44,12 +45,16 @@ Con el slug confirmado:
 python3 src/scripts/preparar_clase.py preparar --raw "<ruta cruda>" --slug <slug>
 ```
 
-Renombra el raw, genera el `.ipynb` de ejercicios y el esqueleto del `.md`, e
-imprime el **mapa de celdas** y los **ejercicios detectados**. Guardá esa salida:
-la vas a usar todo el tiempo.
+Renombra el raw, genera el `.ipynb` de ejercicios y el esqueleto de la notebook
+explicada (también `.ipynb`), e imprime el **mapa de celdas** y los
+**ejercicios detectados**. Guardá esa salida: la vas a usar todo el tiempo.
 
-No pisa archivos existentes (el `.ipynb` puede tener resoluciones tuyas, el `.md`
-puede tener explicación escrita). Si de verdad hay que regenerarlos, `--force`.
+El mapa también dice, para cada figura que la clase referenciaba, si el
+archivo existe hoy en `src/figuras/` o no (campo `figuras_disponibles`) — es
+lo que vas a usar en el Paso 3 para decidir si la embebés o la describís.
+
+No pisa archivos existentes (los dos `.ipynb` pueden tener resoluciones o
+explicación ya escritas). Si de verdad hay que regenerarlos, `--force`.
 
 Si la clase ya estaba procesada, en vez de `preparar` corré:
 
@@ -76,27 +81,34 @@ Mientras leés, anotá tres cosas:
    que completar con el libro.
 2. **Las preguntas retóricas que quedan colgadas.** Estas clases están llenas:
    *"¿Cómo estimamos $\sigma^2$?"*, *"¿cuál es su dimensión?"*, *"¿Se parece a lo
-   que vimos antes?"*. El docente las tira y sigue. **Respondelas todas** en el
-   `.md`: es exactamente lo que el alumno se quedó pensando y nunca resolvió.
+   que vimos antes?"*. El docente las tira y sigue. **Respondelas todas** en la
+   notebook explicada: es exactamente lo que el alumno se quedó pensando y
+   nunca resolvió.
 3. **Los saltos de notación.** Cuando la clase cambia de convención a mitad de
    camino (por ejemplo, presenta lo mismo "a la Bishop" y después "a la Hastie"),
    el alumno cree que son dos temas distintos. Son el mismo. Decilo y dale la
    tabla de traducción.
 
-## Paso 3 — Escribir el `.md`
+## Paso 3 — Escribir la notebook explicada
 
 Antes de escribir una línea, leé:
 
 - `.claude/skills/clase/referencias/plantilla_explicacion.md` — el tono y el
-  nivel de detalle, con una sección de ejemplo escrita entera. **Fija tono, no
-  contenido**: su ejemplo sale de la clase de regresión lineal, así que si es
-  justo la clase que estás escribiendo, no lo reutilices — buscá tu propia
-  analogía y tu propia manera de encadenar la cuenta.
+  nivel de detalle, con una sección de ejemplo escrita entera y cómo se
+  reparte entre celdas markdown y de código. **Fija tono, no contenido**: su
+  ejemplo sale de la clase de regresión lineal, así que si es justo la clase
+  que estás escribiendo, no lo reutilices — buscá tu propia analogía y tu
+  propia manera de encadenar la cuenta.
 - `.claude/skills/clase/referencias/bibliografia.md` — el mapa tema → capítulo y
   la tabla de traducción ESL ↔ Bishop.
+- `.claude/skills/clase/referencias/estilo_graficos.md` — el snippet de Setup
+  y la convención de estilo para cualquier celda que grafique algo. Se lee
+  antes de escribir la primera celda de código, no después.
 
 Escribís sobre el esqueleto que dejó el script, en
-`src/notebooks/explained/<slug>.md`.
+`src/notebooks/explained/<slug>.ipynb`: una notebook con celdas markdown y de
+código, no un archivo de texto. Las celdas de código **se ejecutan de
+verdad** — ver la sección "Código" más abajo.
 
 Lo primero: **reescribí el `# H1`**. El script pone ahí el nombre del archivo
 crudo, que suele ser largo y poco prolijo (`Regresión Lineal introducción,
@@ -167,17 +179,43 @@ Sos un profesor particular explicándole a **una** persona.
 
 ### Código
 
+Las celdas de código de la notebook **se ejecutan de verdad**: no son bloques
+de texto que parecen código, son código que corre y deja su salida real
+(prints, tablas, gráficos) guardada en el `.ipynb`.
+
 - Snippets cortos (menos de 25 líneas), ejecutables, con `numpy` / `pandas` /
   `matplotlib` / `sklearn`.
 - Los comentarios explican el **porqué**, no el qué.
 - Cuando el punto es entender la fórmula, primero la versión a mano con `numpy`
   y después la de la librería. Cuando el punto es la práctica, al revés.
 - El código ilustra el concepto; no lo reemplaza.
+- Si la celda grafica algo, el estilo sale de
+  `referencias/estilo_graficos.md` (leído en el Paso 3, antes de escribir la
+  primera celda de código). El snippet de Setup de ese archivo va una sola vez,
+  en la primera celda de código de toda la notebook.
+- **🏭 Así se hace en la industria**: cuando una sección deriva algo a mano y
+  después existe la forma de librería para lo mismo (SVD a mano vs.
+  `np.linalg.lstsq`, cuadrados mínimos a mano vs. `sklearn`), agregá una celda
+  corta con esa versión, ejecutada, con su salida real, enmarcada como *"así
+  se resuelve en la práctica"*. Va después de la celda que demuestra la
+  cuenta, nunca en vez de ella. No la fuerces en secciones puramente
+  conceptuales que no tienen una contraparte de librería.
+
+**Después de escribir todas las celdas de código de la notebook**, ejecutala
+de punta a punta para hornear las salidas:
+
+```bash
+uv run jupyter nbconvert --to notebook --execute --inplace src/notebooks/explained/<slug>.ipynb
+```
+
+Si una celda tira error, el error se corrige (no se comenta el código ni se
+lo saltea) y se vuelve a correr el comando. Nunca se entrega una notebook con
+una celda rota o sin ejecutar.
 
 ### Referencias
 
-El usuario quiere que el `.md` se apoye fuerte en el libro. Cada sección abre con
-su línea de anclas:
+El usuario quiere que la notebook se apoye fuerte en el libro. Cada sección
+abre con su línea de anclas:
 
 ```
 📓 celdas 41–47 · 📕 ESL §2.4 · 📘 Bishop §1.5
@@ -196,7 +234,7 @@ su línea de anclas:
 
 ### Hasta dónde traer material del libro
 
-El `.md` explica **esta clase**. No reemplaza el capítulo.
+La notebook explicada explica **esta clase**. No reemplaza el capítulo.
 
 - **Sí**: completar lo que la clase *usa sin explicar*, *afirma sin demostrar* o
   *pregunta sin responder*. Eso es el trabajo.
@@ -209,11 +247,20 @@ El `.md` explica **esta clase**. No reemplaza el capítulo.
 
 ### Figuras
 
-Las clases referencian imágenes en `Figuras/*.png` que **no están en el repo**.
-El script te lista cuáles en un comentario del esqueleto. Donde la clase mostraba
-una, escribí un bloque `### 🖼️ La figura de la clase` describiendo **en palabras**
-qué mostraba y qué había que ver en ella. No pongas la imagen rota ni inventes
-código para regenerarla.
+Las clases referencian imágenes tipo `Figuras/<archivo>.png`. Algunas ya están
+guardadas en `src/figuras/` del repo; otras no. El mapa de celdas del Paso 1
+te dice cuáles son cuáles (`figuras_disponibles`), y el comentario del
+esqueleto separa "están en `src/figuras/`, embebelas" de "no están,
+describilas".
+
+- **Si la imagen existe en `src/figuras/`**: agregá, dentro del bloque
+  `#### 🖼️ La figura de la clase`, una celda markdown con
+  `![<descripción corta>](../../figuras/<archivo>.png)` (la ruta sube dos
+  niveles desde `src/notebooks/explained/`) seguida del texto explicando qué
+  mirar en la imagen real — ver el ejemplo en `plantilla_explicacion.md`.
+- **Si no existe**: mantené el comportamiento de siempre — describí **en
+  palabras** qué mostraba y qué había que ver en ella. No pongas la imagen
+  rota, no inventes una ruta, no inventes código para regenerarla.
 
 ### Las tres secciones de cierre
 
@@ -244,15 +291,23 @@ después de la clase y antes de sentarse a hacer los ejercicios, y tiene que
 quedar listo. Ninguna celda de la notebook queda sin cubrir.
 
 Para calibrar, medí **por sección, no por documento**: cada sección temática
-pesa entre **100 y 200 líneas**. Con 5 a 10 secciones más el cierre, un `.md`
-típico cae entre 800 y 1800 líneas — pero el número que importa es el de la
-sección, porque es el que hace que la profundidad no dependa del tamaño de la
-notebook. Una clase de 58 celdas cortas no se explica más flojo que una de 20
-celdas largas.
+pesa entre **100 y 200 líneas**, contando prosa markdown, código y la
+descripción de lo que la salida ejecutada muestra. Con 5 a 10 secciones más el
+cierre, una notebook típica cae entre 800 y 1800 líneas repartidas en sus
+celdas — pero el número que importa es el de la sección, porque es el que hace
+que la profundidad no dependa del tamaño de la notebook cruda. Una clase de 58
+celdas cortas no se explica más flojo que una de 20 celdas largas.
 
 Y es un **síntoma, no una cuota**: si te sale mucho más corto, hay algo que
 quedó nombrado en vez de explicado; si te sale mucho más largo, probablemente
 estés rellenando o metiendo temas que la clase no dio.
+
+Si un concepto te queda ofuscado incluso después de explicarlo en prosa, **no
+lo comprimas más**: partilo en más celdas. Ahora tenés una herramienta que
+antes no tenías — un gráfico o una salida real que le muestre al lector el
+concepto en vez de solo describírselo (una curva de error, una comparación
+antes/después, un `print` de una propiedad que se cumple). Usala ahí donde la
+prosa sola no alcanzaba.
 
 ## Paso 4 — Revisar el notebook de ejercicios
 
@@ -263,7 +318,7 @@ y corregí dos cosas:
    conceptual) o celdas de código, según palabras clave. Si se equivocó, cambialo.
 2. **Los títulos.** El script arma `### Ejercicio N — <primera línea recortada>`,
    que a veces queda largo o feo. Reescribilos por títulos cortos y descriptivos,
-   y **usá esos mismos títulos en los centros del `.md`**.
+   y **usá esos mismos títulos en los centros de la notebook explicada**.
 
 Los **enunciados no se tocan**: van verbatim como los dio la cátedra.
 
@@ -276,15 +331,17 @@ Antes de reportar:
 - [ ] Ninguna referencia a ESL con número de ecuación o página no verificable.
 - [ ] Ninguna analogía sin su "dónde se rompe".
 - [ ] Ningún centro que resuelva el ejercicio.
-- [ ] El `.ipynb` de ejercicios abre: `python3 -c "import json; json.load(open('src/notebooks/exercises/<slug>.ipynb'))"`.
-- [ ] Los títulos de los ejercicios coinciden entre el `.ipynb` y los centros.
+- [ ] La notebook explicada **ejecuta de punta a punta sin errores**
+  (`uv run jupyter nbconvert --to notebook --execute --inplace` corrió limpio).
+- [ ] Cada imagen embebida (`![...](../../figuras/...)`) apunta a un archivo
+  que existe en `src/figuras/`; ninguna figura ausente quedó como imagen rota
+  — las que faltan están descriptas en palabras.
+- [ ] El `.ipynb` de ejercicios y el de la notebook explicada abren como JSON
+  válido: `python3 -c "import json; json.load(open('<ruta>'))"` con cada uno.
+- [ ] Los títulos de los ejercicios coinciden entre el `.ipynb` de ejercicios
+  y los centros de la notebook explicada.
 
 Cerrá con las tres rutas generadas y un resumen de dos o tres líneas de qué
-cubre la clase.
-
-Y recordale al usuario que, si lo va a leer en un visor sin soporte de LaTeX
-(Zed, por ejemplo), tiene la vista HTML:
-
-```bash
-python3 src/scripts/preparar_clase.py html --slug <slug> --abrir
-```
+cubre la clase. La notebook explicada se abre directo en Jupyter, VS Code o
+Cursor con el LaTeX, las imágenes y las salidas ya renderizados — no hace
+falta ningún paso extra para verla.
