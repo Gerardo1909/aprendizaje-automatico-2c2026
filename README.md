@@ -12,6 +12,10 @@ La idea es seguir el siguiente flujo:
 
 >  Algo trasversal que deberia ocurrir con toda esta linea de notebooks es que todos tienen el mismo nombre en cada uno de los 3 directorios, los diferencia su ruta absoluta dentro del repo.
 
+## Exámenes
+
+`exams/<n>_P/raw/` guarda las fotos del examen (renombradas por página y ejercicios) y `exams/<n>_P/explained/` la notebook ejecutada con la resolución y el contraste contra `src/notebooks/explained`.
+
 ## Entorno
 
 Un único entorno [uv](https://docs.astral.sh/uv/) en la raíz del repo, declarado
