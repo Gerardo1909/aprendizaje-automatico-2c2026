@@ -32,3 +32,9 @@ Lo mantiene el tutor (`/tutor corregir`, `/tutor diario`). Una entrada por error
 - Causa: hipótesis oculta + álgebra. No usó `Σx = 0` (estandarizar ⇒ media 0 ⇒ suma 0) para desacoplar `β0` y no resolvió el 2×2 en `β1, β2`.
 - Regla para reconocerlo: derivar e igualar a 0 **es** la ecuación normal `XᵀXβ = Xᵀy`. Que el enunciado defina `ρ` anticipa `1/(1−ρ²)`. `β0 = 0` si `y` viene centrado, `β0 = ȳ` si no; si hay ambigüedad, pensar en la opción que agrupa a las dos.
 - Estado: pendiente
+
+## ESL 4.2 — de E[Y|x]=posterior a "importa el orden, no el valor" — 2026-10-01
+- Qué pasó: al leer la notebook del cap. 4, se perdió después de "¿Con qué justificación? Esperanza condicional": la pregunta "¿importa que los f̂_k sean posteriores?" queda abierta y las secciones siguientes (suman 1, objetivos t_k, masking) no parecen conectadas.
+- Causa: concepto (falta el hilo) — en parte, defecto de la notebook, no solo del alumno.
+- Regla para reconocerlo: Bayes ⇒ argmax del posterior; E(Y_k|x)=Pr(G=k|x) justifica el objetivo; OLS da la mejor aproximación lineal L2, no el posterior; para clasificar solo importa el ORDEN de los f̂_k, y se rompe cuando la aproximación lineal lo invierte (masking).
+- Estado: pendiente
