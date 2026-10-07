@@ -38,3 +38,9 @@ Lo mantiene el tutor (`/tutor corregir`, `/tutor diario`). Una entrada por error
 - Causa: concepto (falta el hilo) — en parte, defecto de la notebook, no solo del alumno.
 - Regla para reconocerlo: Bayes ⇒ argmax del posterior; E(Y_k|x)=Pr(G=k|x) justifica el objetivo; OLS da la mejor aproximación lineal L2, no el posterior; para clasificar solo importa el ORDEN de los f̂_k, y se rompe cuando la aproximación lineal lo invierte (masking).
 - Estado: pendiente
+
+## Clase 6 §5 — para qué sirve descomponer Σ = UDUᵀ — 2026-10-07
+- Qué pasó: leyó la descomposición espectral como un método para *estimar* las covarianzas de LDA/QDA, y la cuenta de la inversa y del determinante (celda 27 de la notebook explicada) no le dejó claro el objetivo.
+- Causa: concepto (en parte, defecto de la notebook: la verificación aparece antes del motivo). La estimación es el plug-in de §4; la descomposición sirve para *usar* Σ̂ una vez estimada.
+- Regla para reconocerlo: en los ejes de la elipse, Mahalanobis = Σ z_l²/λ_l y log|Σ| = Σ log λ_l. Para qué sirve: (1) geometría (|Σ| es el volumen² de la elipse, de ahí el −½log|Σ_k|), (2) estabilidad numérica (det directo da 0 o ∞ con p grande), (3) se ven los λ chicos que RDA levanta. No es más rápido que invertir: las dos cosas cuestan O(p³).
+- Estado: pendiente

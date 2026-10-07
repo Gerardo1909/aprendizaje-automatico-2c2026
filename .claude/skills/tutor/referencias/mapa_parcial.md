@@ -15,7 +15,7 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## 1. Intermezzo: Newton-Raphson
 
-- **Material:** `books/explained/cap4_metodos_lineales_clasificacion.ipynb`, §4.4.1 (Newton e IRLS); `src/figuras/Methode_newton.png`. ESL §4.4 (logística). Clase propia: pendiente.
+- **Material:** `books/explained/cap4_metodos_lineales_clasificacion.ipynb`, §4.4.1 (Newton e IRLS); `src/figuras/Methode_newton.png`. ESL §4.4 (logística). Clase propia: `src/notebooks/explained/6_metodos_lineales_clasificacion.ipynb` §6 (Newton) y §9 (IRLS).
 - 🧮 La iteración `x_{n+1} = x_n − f(x_n)/f'(x_n)` y su versión para optimizar: `θ ← θ − H⁻¹ ∇`. Por qué Newton es una aproximación cuadrática.
 - 📌 Converge rápido cerca del óptimo; cada paso cuesta invertir el Hessiano.
 - ⚠️ Confundir buscar raíces de `f` con buscar el mínimo (raíces de `f'`).
