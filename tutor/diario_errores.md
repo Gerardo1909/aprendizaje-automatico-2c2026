@@ -44,3 +44,9 @@ Lo mantiene el tutor (`/tutor corregir`, `/tutor diario`). Una entrada por error
 - Causa: concepto (en parte, defecto de la notebook: la verificación aparece antes del motivo). La estimación es el plug-in de §4; la descomposición sirve para *usar* Σ̂ una vez estimada.
 - Regla para reconocerlo: en los ejes de la elipse, Mahalanobis = Σ z_l²/λ_l y log|Σ| = Σ log λ_l. Para qué sirve: (1) geometría (|Σ| es el volumen² de la elipse, de ahí el −½log|Σ_k|), (2) estabilidad numérica (det directo da 0 o ∞ con p grande), (3) se ven los λ chicos que RDA levanta. No es más rápido que invertir: las dos cosas cuestan O(p³).
 - Estado: pendiente
+
+## PCA (ESL 14.5) — lagunas de base al leer la derivación — 2026-10-10
+- Qué pasó: al leer §1–§2 del notebook de PCA no pudo seguir cuatro pasos: por qué cada $\lambda_i$ se optimiza por separado, la regla $\partial_b\|a-Mb\|^2=-2M^T(a-Mb)$, por qué $\mathbf V_q\mathbf V_q^T$ es una proyección, y los multiplicadores de Lagrange (nunca los vio).
+- Causa: no reconoció la herramienta (en los tres primeros: es la ecuación normal y la matriz hat de la clase 2 con $\mathbf X^T\mathbf X=I$) + concepto (Lagrange).
+- Regla para reconocerlo: "optimizar con restricción de igualdad" ($\|v\|=1$) ⇒ Lagrange ⇒ $\nabla f=\gamma\nabla g$; con $f=v^TAv$ da $Av=\gamma v$ y el objetivo vale $\gamma$. "Suma de términos que no comparten incógnitas" ⇒ se minimiza cada uno por separado. "$\mathbf V\mathbf V^T$ con columnas ortonormales" ⇒ matriz hat.
+- Estado: pendiente (repasar con la derivación en frío de PCA: Pitágoras → forma cuadrática → Lagrange → autovector)
