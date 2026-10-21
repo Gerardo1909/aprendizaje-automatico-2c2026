@@ -72,6 +72,15 @@ Verificadas, se pueden nombrar sin riesgo:
 - **ESL Tabla 3.2** — coeficientes de mínimos cuadrados y sus $Z$-scores para *prostate*.
 - **ESL Fig. 3.2** — la proyección ortogonal de $\mathbf{y}$ sobre el subespacio
   generado por las columnas de $\mathbf{X}$.
+- **ESL Fig. 7.1** — error de entrenamiento (celeste) y de test $Err_{\mathcal{T}}$ (rojo)
+  contra la complejidad, 100 conjuntos de 50 datos con lasso (es `src/figuras/Bias-Variance.png`).
+- **ESL Fig. 7.8** — curva de aprendizaje hipotética, $1-Err$ contra el tamaño del
+  entrenamiento (es `src/figuras/curva_de_aprendizaje.png`).
+- **ESL cap. 7, secciones verificadas** (clase 7): §7.2 selección vs evaluación y reparto
+  50/25/25; §7.3 sesgo-varianza (OLS, Ridge, sesgo de modelo vs de estimación); §7.4
+  optimismo $\omega = \frac{2}{N}\sum \mathrm{Cov}(\hat y_i, y_i)$; §7.10 CV ($\kappa$, $K$, regla de un
+  error estándar); §7.10.2 la forma incorrecta de hacer CV; §7.12 CV estima $Err$, no $Err_{\mathcal{T}}$.
+  ESL cap. 7 usa $\alpha$ para el parámetro de ajuste (en cap. 3 Ridge usa $\lambda$).
 
 Para todo lo demás: **sección, no ecuación**. Y nunca un número de página.
 
