@@ -45,8 +45,20 @@ Lo mantiene el tutor (`/tutor corregir`, `/tutor diario`). Una entrada por error
 - Regla para reconocerlo: en los ejes de la elipse, Mahalanobis = Σ z_l²/λ_l y log|Σ| = Σ log λ_l. Para qué sirve: (1) geometría (|Σ| es el volumen² de la elipse, de ahí el −½log|Σ_k|), (2) estabilidad numérica (det directo da 0 o ∞ con p grande), (3) se ven los λ chicos que RDA levanta. No es más rápido que invertir: las dos cosas cuestan O(p³).
 - Estado: pendiente
 
+## Clase 6 §6 — Newton-Raphson aplicado a la derivada — 2026-10-08
+- Qué pasó: leyó "aplicarlo a la derivada" como "hacer Newton sobre f''". Interpretó f'' como regla de parada (parar si el paso sube; converger cuando f''→0) y no vio cómo un método de raíces encuentra máximos/mínimos.
+- Causa: concepto. El puente es "óptimo ⇒ f'=0": Newton se aplica a g=f', y f'' aparece solo porque es g' (la pendiente de la tangente). Se para cuando f'(x)≈0 (el paso se anula); f''≈0 es la zona peligrosa (vértice en el infinito), no el criterio de convergencia. El signo de f'' decide hacia qué tipo de punto crítico va, no si se frena.
+- Regla para reconocerlo: "optimizar con Newton" = "Newton de raíces sobre el gradiente". Reemplazá f→f', f'→f''. En varias variables: f'→∇f, f''→H.
+- Estado: pendiente
+
 ## PCA (ESL 14.5) — lagunas de base al leer la derivación — 2026-10-10
 - Qué pasó: al leer §1–§2 del notebook de PCA no pudo seguir cuatro pasos: por qué cada $\lambda_i$ se optimiza por separado, la regla $\partial_b\|a-Mb\|^2=-2M^T(a-Mb)$, por qué $\mathbf V_q\mathbf V_q^T$ es una proyección, y los multiplicadores de Lagrange (nunca los vio).
 - Causa: no reconoció la herramienta (en los tres primeros: es la ecuación normal y la matriz hat de la clase 2 con $\mathbf X^T\mathbf X=I$) + concepto (Lagrange).
 - Regla para reconocerlo: "optimizar con restricción de igualdad" ($\|v\|=1$) ⇒ Lagrange ⇒ $\nabla f=\gamma\nabla g$; con $f=v^TAv$ da $Av=\gamma v$ y el objetivo vale $\gamma$. "Suma de términos que no comparten incógnitas" ⇒ se minimiza cada uno por separado. "$\mathbf V\mathbf V^T$ con columnas ortonormales" ⇒ matriz hat.
 - Estado: pendiente (repasar con la derivación en frío de PCA: Pitágoras → forma cuadrática → Lagrange → autovector)
+
+## PCA — qué representa V de la SVD (puente con clase 3) — 2026-10-20
+- Qué pasó: entendía que V "pondera" las variables en los scores, pero no por qué *esa* V; seguía la derivación por Lagrange del cap14_5 sin conectarla con el "rotar–estirar–rotar" de la clase 3. (Antes: confundía qué se permuta en la línea base; se aclaró que se mezclan valores dentro de cada columna de Z, no los scores.)
+- Causa: no reconoció la herramienta. Es la misma SVD de la clase 3 §5 leída sobre la matriz de datos.
+- Regla para reconocerlo: ‖Zw‖² = Σᵢ(zᵢᵀw)² = N·var(proyección sobre w) ⇒ "cuánto estira Z a w" = "cuánto se dispersan los países sobre w". v₁ = dirección de máximo estiramiento = PC1. De Z = UDVᵀ sale ZV = UD (scores) y Z = (UD)Vᵀ (reconstrucción): la fila k de V da el peso de la variable k en cada componente, y también de cada componente en la variable k.
+- Estado: pendiente
