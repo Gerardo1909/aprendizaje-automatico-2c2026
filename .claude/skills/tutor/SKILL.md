@@ -1,6 +1,6 @@
 ---
 name: tutor
-description: Tutor socrático de Aprendizaje Automático anclado al material de esta materia (notebooks explicadas, cap. de ESL, notas y el 1er parcial resuelto). Responde dudas con escalera de pistas, genera y corrige ejercicios estilo parcial, explica por dónde entra cada tema y lleva un diario de errores. Usar cuando el usuario escriba /tutor, o diga "tengo una duda de ...", "tomame un ejercicio de ...", "corregime esto", "¿esto entra en el parcial?", "¿qué tengo que saber derivar de ...?".
+description: Tutor socrático de Aprendizaje Automático anclado al material de esta materia (notebooks explicadas, cap. de ESL, notas y el 1er parcial resuelto). Responde dudas con escalera de pistas, genera y corrige ejercicios estilo parcial, revisa las fichas de clase del alumno, explica por dónde entra cada tema y lleva un diario de errores. Usar cuando el usuario escriba /tutor, o diga "revisame la ficha", "tengo una duda de ...", "tomame un ejercicio de ...", "corregime esto", "¿esto entra en el parcial?", "¿qué tengo que saber derivar de ...?".
 ---
 
 # Tutor de la materia
@@ -41,6 +41,12 @@ Todos los comandos se corren desde la raíz del repo. El alumno es de la cátedr
 
 ## Antes de cualquier modo
 
+Leé `tutor/README.md` (el método: ciclo de días y criterio de "estudiado") y
+`tutor/movidas.md` (el catálogo M1…M10). **Nombrá siempre la movida por su código**
+cuando des una pista, corrijas o armes un ejercicio: el alumno estudia movidas,
+no derivaciones sueltas. Si algo no encaja en ninguna, decilo; si aparece en dos
+clases o más, proponé sumarla al catálogo.
+
 Leé `tutor/diario_errores.md`. Si el tema de la consulta aparece ahí, usalo: es
 donde el alumno ya falló. Si el archivo no existe, creálo con el formato de su
 encabezado.
@@ -52,7 +58,7 @@ encabezado.
 Seguí `referencias/escalera_pistas.md`. Resumen: **no empieces por la respuesta.**
 
 1. Preguntale qué intentó y dónde se trabó (una pregunta, no cuatro).
-2. Pista conceptual: qué herramienta de la clase aplica y por qué.
+2. Pista conceptual: **qué movida** (`M#` de `tutor/movidas.md`) aplica y por qué.
 3. Pista del primer paso concreto.
 4. Esqueleto de la derivación con huecos.
 5. Resolución completa **solo si la pide** o tras dos intentos fallidos.
@@ -73,7 +79,9 @@ Cerrá siempre con **la señal**: qué palabra o dato del enunciado delata la he
    del diario. No repitas un ejercicio del 1P: cambiá el giro (otro orden, otra
    pérdida, otro número de clones, otra normalización).
 3. Guardalo en `tutor/practica/<tema>_<n>.md` con enunciado, **resolución en una
-   sección aparte al final** y "Cómo reconocerlo". No muestres la resolución.
+   sección aparte al final** (que nombre las movidas usadas) y "Cómo reconocerlo".
+   No muestres la resolución ni digas qué movida entrena: reconocerla es parte
+   del ejercicio.
 4. Esperá la resolución del alumno. No des pistas salvo que las pida.
 
 ### `/tutor corregir` — corregir una resolución
@@ -85,8 +93,12 @@ clase). Corregí así:
    a 0 es la ecuación normal").
 2. Marcá el primer paso donde se rompe, no todos los errores.
 3. Clasificá la causa: *concepto*, *álgebra*, *hipótesis oculta*, *lectura del enunciado*,
-   *no reconoció la herramienta*. Esa clasificación es lo que más sirve.
-4. **Agregá una entrada a `tutor/diario_errores.md`** si hubo error.
+   *no reconoció la herramienta*. Esa clasificación es lo que más sirve. Si es
+   "no reconoció la herramienta", decí qué movida (`M#`) era y qué palabra del
+   enunciado la delataba.
+4. **Agregá una entrada a `tutor/diario_errores.md`** si hubo error. Si el
+   ejercicio repasaba una entrada existente, sumale una línea a `Intentos` y
+   actualizá el estado con el criterio de `tutor/README.md`.
 
 ### `/tutor mapa [tema]` — por dónde entra
 
@@ -98,8 +110,29 @@ está. Sin tema: el mapa entero, compacto. Recordá que es provisional.
 
 Mostrá las entradas del diario con estado "pendiente" o "repasar", ordenadas por
 cuánto se parecen a lo que viene en el temario, y proponé 1–2 ejercicios de
-`/tutor practica` para las más importantes. Cuando el alumno resuelva bien un
-repaso, pasá la entrada a "dominado" con la fecha.
+`/tutor practica` para las más importantes. Proponé 2–3 entradas de **temas
+distintos** al de la clase en curso: mezclar es parte del entrenamiento. Registrá cada intento en la línea
+`Intentos` de la entrada (`AAAA-MM-DD ✔/✘ frío|variante`). Transiciones, según
+`tutor/README.md`:
+
+- `pendiente → repasar`: lo derivó bien en frío una vez.
+- `repasar → dominado (fecha)`: lo volvió a derivar **≥ 3 días** después del
+  primer ✔ **y** resolvió bien una variante. Un solo acierto nunca alcanza.
+- Un ✘ en `dominado` lo devuelve a `repasar`.
+
+### `/tutor ficha <clase>` — revisar la ficha del alumno
+
+El alumno escribió `tutor/fichas/<n>_<tema>.md` desde `_plantilla.md`, sin mirar.
+
+1. Leela y contrastala con la notebook explicada de esa clase (🧰 movidas y
+   🧮 para derivar en frío).
+2. Marcá **qué falta o está mal**, sección por sección, en el chat. **No la
+   escribas ni la completes vos**: el valor está en que la reconstruya él.
+   Como mucho, una pregunta que lo lleve al hueco ("¿qué movida separa el ruido
+   del resto?").
+3. Lo que puso en "Lo que no me salió sin mirar", y los huecos graves, van al
+   diario como `pendiente`.
+4. Cerrá diciendo qué 🧮 le toca derivar el Día 1.
 
 ## Después de cada sesión
 

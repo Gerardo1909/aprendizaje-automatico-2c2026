@@ -22,7 +22,7 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## 2. Clasificación: logística, regularización, LDA, Naive Bayes
 
-- **Material:** cap. 4 de ESL en `books/explained/cap4_metodos_lineales_clasificacion.ipynb` (§4.3 LDA/QDA, §4.4 logística, §4.4.4 logística L1). ESL §4.3, §4.4. Naive Bayes: no está en el capítulo armado (**verificar** dónde lo ubica la cátedra). Enfoque generativo vs discriminativo: Bishop §1.5.4 (en la tabla de bibliografía).
+- **Material:** cap. 4 de ESL en `books/explained/cap4_metodos_lineales_clasificacion.ipynb` (§4.3 LDA/QDA, §4.4 logística, §4.4.4 logística L1). Clase propia: `src/notebooks/explained/6_metodos_lineales_clasificacion.ipynb` §2–§3 (Bayes y frontera de LDA), §7–§10 (logística, IRLS, regularizada). ESL §4.3, §4.4. Naive Bayes: no está en el capítulo armado (**verificar** dónde lo ubica la cátedra). Enfoque generativo vs discriminativo: Bishop §1.5.4 (en la tabla de bibliografía).
 - 🧮 Log-verosimilitud logística, su gradiente `Xᵀ(y − p)` y el Hessiano `−Xᵀ W X`; un paso de Newton como mínimos cuadrados ponderados (IRLS). 🧮 Frontera de decisión de LDA igualando posteriores con covarianza común (queda lineal). 🧮 Por qué logística + separabilidad perfecta diverge.
 - 📌 Logística L1 (Lasso para clasificación); LDA vs logística (§4.4.5 en la notebook); Naive Bayes asume independencia condicional.
 - ⚠️ Ajustar logística con mínimos cuadrados; creer que LDA necesita datos gaussianos *para usarse* (lo necesita para ser óptimo); que los coeficientes de logística se lean como en OLS (son log-odds).
@@ -36,7 +36,7 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## 4. Evaluación: sesgo-varianza, nº efectivo de parámetros, CV, bootstrap
 
-- **Material:** `src/notebooks/explained/1_intro_teoria_decision.ipynb` y `src/figuras/Bias-Variance.png` (ya hay intro). ESL §2.9 y §7.2–7.3 (sesgo-varianza), §7.10–7.11 (CV y bootstrap). Número efectivo de parámetros: ESL §7.6 (**verificar**); `df(λ)` de Ridge no aparece con ese nombre en la notebook de la clase 4 (**verificar**), pero se deduce de la SVD de la clase 3.
+- **Material:** `src/notebooks/explained/1_intro_teoria_decision.ipynb` y `src/figuras/Bias-Variance.png` (ya hay intro). Clase propia: `src/notebooks/explained/7_evaluacion_modelos.ipynb` §2 (EPE y media condicional), §3 (sesgo-varianza), §4 (OLS y Ridge con df), §6 (K-fold). ESL §2.9 y §7.2–7.3 (sesgo-varianza), §7.10–7.11 (CV y bootstrap). Número efectivo de parámetros: ESL §7.6 (**verificar**); `df(λ)` de Ridge está derivado en la clase 7 §4 (traza de la matriz sombrero vía la SVD de la clase 3).
 - 🧮 Descomposición `EPE(x₀) = σ² + Sesgo² + Var`. 🧮 `df` de Ridge desde la SVD (enlaza con la clase 3). 🧮 Por qué K-fold con K chico sesga y K grande tiene varianza alta.
 - 📌 Bootstrap: muestreo con reemplazo, ~63,2 % de observaciones únicas por réplica.
 - ⚠️ Estimar el error con el mismo conjunto en el que se seleccionó el modelo; hacer selección de variables *antes* de la CV.
@@ -50,13 +50,13 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## Derivaciones en frío, en una lista
 
-1. Un paso de Newton y su forma para logística (IRLS).
-2. Gradiente y Hessiano de la log-verosimilitud logística.
-3. Frontera de LDA (covarianza común).
-4. `EPE = σ² + Sesgo² + Var`.
-5. `Var` del promedio de `B` estimadores correlacionados.
-6. `df(λ)` de Ridge con la SVD.
-7. PCA: SVD ≡ autovectores de la covarianza.
+1. Un paso de Newton y su forma para logística (IRLS). — M9, M1, M10
+2. Gradiente y Hessiano de la log-verosimilitud logística. — M10, M1
+3. Frontera de LDA (covarianza común). — M3
+4. `EPE = σ² + Sesgo² + Var`. — M2, M3
+5. `Var` del promedio de `B` estimadores correlacionados. — M4
+6. `df(λ)` de Ridge con la SVD. — M4, M5
+7. PCA: SVD ≡ autovectores de la covarianza. — M5, M8
 
-Reglas de práctica: cada semana, derivar a mano **sin mirar** las de la clase del
-momento; corregir con `/tutor corregir`; registrar en el diario.
+Reglas de práctica: el ciclo de días y el criterio de "estudiado" están en
+`tutor/README.md`; las movidas (`M#`), en `tutor/movidas.md`.

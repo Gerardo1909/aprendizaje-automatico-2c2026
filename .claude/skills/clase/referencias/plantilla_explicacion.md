@@ -24,12 +24,14 @@ repartido en **celdas** de un `.ipynb`, y las de código se ejecutan de verdad.
            📓 Notebook · ✏️ Ejercicios · 📕 ESL
            > **TL;DR** (5 bullets)
            ## 🗺️ Mapa de la clase   tabla bloque → sección (checklist de cobertura)
+           ## 🧰 Movidas de esta clase   tabla Movida | Dónde la usa | Para qué (misma celda)
 [código]   Setup: sns.set_theme(...) + rcParams — ver referencias/estilo_graficos.md
 [markdown] ## 0. Notación y convenciones  (solo si la clase introduce notación nueva)
 [markdown] ## 1..N. <Secciones temáticas>: idea en criollo + formalizándolo + por qué importa
 [markdown] (si hay figura real) ![...](../../figuras/<archivo>.png) + qué mirar en ella
 [código]   En código: snippet ejecutado, con su salida (print, tabla, gráfico)
 [markdown] ⚠️ Confusión típica · ❓ pregunta abierta (condicionales)
+## 🧮 Para derivar en frío   2–4 consignas: Movidas, tiempo, "si te trabás" (sin resolución)
 ## 🧵 El hilo conductor
 ## ✅ Autoevaluación
 ## 🎯 Centros para los ejercicios
@@ -96,6 +98,8 @@ el punto de ese conjunto más cercano a $\mathbf{y}$.
 > tenés en la cabeza.
 
 #### Formalizándolo
+
+**Movidas:** M1 (derivar e igualar a 0).
 
 Arrancamos de la función de costo escrita en forma matricial:
 

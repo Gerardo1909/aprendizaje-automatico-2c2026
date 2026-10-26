@@ -1,6 +1,6 @@
 ---
 name: clase
-description: Procesa una notebook de clase de Aprendizaje Automático - normaliza su nombre, genera el notebook de ejercicios con placeholders y escribe la explicación pedagógica completa en src/notebooks/explained. Usar cuando el usuario escriba /clase, baje una notebook nueva a src/notebooks/raw, o pida "procesá la clase X", "explicame la clase de ...", "armá el material de estudio de ...".
+description: Procesa una notebook de clase de Aprendizaje Automático - normaliza su nombre, genera el notebook de ejercicios con placeholders y escribe la explicación pedagógica completa en src/notebooks/explained, organizada por las movidas de tutor/movidas.md y con una sección de derivaciones para hacer en frío (método de tutor/README.md). Usar cuando el usuario escriba /clase, baje una notebook nueva a src/notebooks/raw, o pida "procesá la clase X", "explicame la clase de ...", "armá el material de estudio de ...".
 ---
 
 # Procesar una clase
@@ -11,6 +11,13 @@ tema, y un `.ipynb` de ejercicios listo para resolver.
 
 La notebook explicada es el 90% del trabajo. Todo lo demás es andamiaje que
 hace el script.
+
+**Rol de la notebook en el método** (`tutor/README.md`): es un **diccionario**, no
+lo que el alumno estudia de punta a punta. Él lee el mapa, el recuadro 🧰, "La
+idea en criollo" y el hilo; después escribe su ficha y deriva en frío las 🧮.
+Por eso la notebook tiene que dejar **a la vista qué movidas** (`tutor/movidas.md`)
+usa cada derivación y **qué hay que producir**. La profundidad no baja: un
+diccionario sirve si cuando lo consultás tiene el paso que te falta.
 
 ## Argumentos
 
@@ -114,6 +121,34 @@ Lo primero: **reescribí el `# H1`**. El script pone ahí el nombre del archivo
 crudo, que suele ser largo y poco prolijo (`Regresión Lineal introducción,
 cuadrados mínimos, descenso por gradiente`). Poné un título humano y corto,
 manteniendo el número de clase: `# 2 — Regresión lineal y cuadrados mínimos`.
+
+### 🧰 Movidas de esta clase
+
+Justo después de la tabla "Mapa de la clase", en la misma celda del mapa (así
+no se corren los números de celda cuando se adapta una notebook vieja),
+`## 🧰 Movidas de esta clase`: una tabla `Movida | Dónde la usa | Para qué`, con
+los códigos de `tutor/movidas.md` (`M2 — Sumar y restar un centro`), la(s)
+sección(es) de la notebook y una frase. Cerrá con una línea que diga qué es
+**resultado propio** de esta clase (lo que no es movida y hay que saber).
+
+Si una derivación necesita una movida que no está en el catálogo, **no la
+inventes en el catálogo**: describila como resultado de la clase y avisá en el
+reporte final que podría ser candidata (regla: aparece en ≥ 2 clases).
+
+Dentro de cada `### Formalizándolo` que tenga una derivación, la primera línea
+del bloque de la cuenta es `**Movidas:** M#, M#`, y cada paso que aplica una
+movida la nombra en su justificación (*"el cruzado muere (M2): …"*).
+
+**El camino corto primero.** Si la clase llega a un resultado por un camino largo
+y una movida del núcleo (M1–M7) lo saca en menos pasos, mostrá los dos y marcá
+cuál conviene reproducir en frío. Ejemplo: "$E[Y\mid x]$ es óptima" se puede
+derivar con M1 (derivar e igualar a 0), pero con M2 sale en tres líneas y sin
+cuentas. El alumno va a reproducir el camino que pueda recordar.
+
+**"La idea en criollo" se lee sola.** El Día 0 el alumno lee solo eso de cada
+sección (más el mapa, el 🧰 y el hilo) y escribe su ficha sin mirar. Por eso
+tiene que decir, sin fórmulas, **qué resultado sale y por qué importa**, no solo
+motivar.
 
 ### Cómo agrupar
 
@@ -262,7 +297,25 @@ describilas".
   palabras** qué mostraba y qué había que ver en ella. No pongas la imagen
   rota, no inventes una ruta, no inventes código para regenerarla.
 
-### Las tres secciones de cierre
+### Las cuatro secciones de cierre
+
+**🧮 Para derivar en frío** (va antes del hilo). De 2 a 4 derivaciones que el
+alumno tiene que poder sacar en hoja en blanco: las 🧮 de la fila de la clase en
+`.claude/skills/tutor/referencias/mapa_parcial.md` más las centrales de la
+clase. Cada una con:
+
+- **Consigna**: qué hay que mostrar, en una o dos líneas, como en un parcial.
+- **Movidas**: los códigos (`M1`, `M2`…), sin decir en qué paso.
+- **Tiempo objetivo**: ≤ 10 min.
+- **Si te trabás**: la sección de esta notebook donde está hecha.
+
+Prioridad: primero las 🧮 del mapa que la clase cubre; si quedan más de 4,
+elegí las que más movidas del núcleo combinan y listá las que quedaron afuera en
+el reporte final. Usá la notación del mapa y de ESL; si la clase usa otra (por
+ejemplo $\alpha$ en vez de $\lambda$ para Ridge), aclaralo en la consigna.
+
+Nunca la resolución acá: ya está en la sección. Si una 🧮 del mapa no se dio en
+la clase, no la pongas y avisalo en el reporte final.
 
 **🧵 El hilo conductor.** Cómo se encadena todo lo de la clase, de dónde venimos
 (la clase anterior, si existe en `explained/`) y hacia dónde vamos. Dos o tres
@@ -286,9 +339,14 @@ ejercicio es justamente demostrarlo. Un centro se pasa para que la meta el otro.
 
 ### Profundidad
 
-Exhaustivo. Este es un documento de estudio, no un resumen: el usuario lo lee
-después de la clase y antes de sentarse a hacer los ejercicios, y tiene que
-quedar listo. Ninguna celda de la notebook queda sin cubrir.
+Exhaustivo, porque es un **diccionario**: el alumno no la lee de punta a punta,
+la abre cuando se trabó en una derivación en frío y necesita **el paso exacto**
+que le falta. Si ese paso no está, el diccionario falló. Ninguna celda de la
+notebook queda sin cubrir.
+
+La lectura de punta a punta la reemplazan tres puertas de entrada que tienen que
+funcionar solas: el mapa con el 🧰, "La idea en criollo" de cada sección y la
+🧮 del cierre.
 
 Para calibrar, medí **por sección, no por documento**: cada sección temática
 pesa entre **100 y 200 líneas**, contando prosa markdown, código y la
@@ -327,6 +385,9 @@ Los **enunciados no se tocan**: van verbatim como los dio la cátedra.
 Antes de reportar:
 
 - [ ] Cada fila de la tabla "Mapa de la clase" tiene una sección asignada.
+- [ ] Están 🧰 *Movidas de esta clase* (tras el mapa) y 🧮 *Para derivar en frío*
+  (antes del hilo); toda derivación arranca con `**Movidas:**` y usa códigos que
+  existen en `tutor/movidas.md`.
 - [ ] Todas las preguntas retóricas de la clase están respondidas.
 - [ ] Ninguna referencia a ESL con número de ecuación o página no verificable.
 - [ ] Ninguna analogía sin su "dónde se rompe".
@@ -341,7 +402,18 @@ Antes de reportar:
 - [ ] Los títulos de los ejercicios coinciden entre el `.ipynb` de ejercicios
   y los centros de la notebook explicada.
 
-Cerrá con las tres rutas generadas y un resumen de dos o tres líneas de qué
-cubre la clase. La notebook explicada se abre directo en Jupyter, VS Code o
+Después del chequeo:
+
+1. **Actualizá la fila de la clase en `.claude/skills/tutor/referencias/mapa_parcial.md`**:
+   el campo **Material** con la notebook y sus secciones, y las 🧮 si la clase
+   agregó o descartó alguna.
+2. **Movidas candidatas:** si una candidata de esta clase ya apareció en otra
+   (buscá en el 🧰 de las demás notebooks explicadas), proponé sumarla a
+   `tutor/movidas.md`. No la sumes sin que el usuario lo confirme.
+
+Cerrá con las tres rutas generadas, un resumen de dos o tres líneas de qué
+cubre la clase, las 🧮 que quedaron (y las que no entraron) y el próximo paso del
+alumno según `tutor/README.md`: *"Día 0: leé el mapa, el 🧰, las ideas en
+criollo y el hilo; después escribí tu ficha con `tutor/fichas/_plantilla.md`."* La notebook explicada se abre directo en Jupyter, VS Code o
 Cursor con el LaTeX, las imágenes y las salidas ya renderizados — no hace
 falta ningún paso extra para verla.
