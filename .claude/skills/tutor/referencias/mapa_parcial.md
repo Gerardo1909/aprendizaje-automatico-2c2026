@@ -29,6 +29,8 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## 3. Árboles y ensambles: Bagging, Random Forest, Boosting, XGBoost
 
+> **FUERA DEL TEMARIO** (confirmado por el alumno el 2026-11-03: sacaron ensambles de la materia). Se deja la fila como referencia.
+
 - **Material:** sin notebook todavía. ESL §9.2 (árboles/CART), §8.7 (bagging), cap. 15 (random forests), cap. 10 (boosting). XGBoost: fuera de ESL (**verificar**).
 - 🧮 (probable) Criterio de corte con Gini/entropía/RSS. 🧮 Por qué promediar `B` modelos reduce la varianza: `Var = ρσ² + (1−ρ)σ²/B`; es la fórmula que explica por qué random forest decorrelaciona.
 - 📌 Boosting ajusta sobre residuos / gradientes; bagging vs boosting ataca varianza vs sesgo.
@@ -43,10 +45,10 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 
 ## 5. No supervisado (bonus, pero se evalúa)
 
-- **Material:** `notes/descomposicion-matrices-svd.md` y la clase 3 (SVD). ESL §14.5 (PCA), §14.3 (clustering). SVD → PCA enlaza directo con la clase 3.
-- 🧮 PCA desde SVD (`X = UDVᵀ` centrada ⇒ componentes = columnas de `V`, varianzas `d_j²/N`) y desde la matriz de covarianza (autovectores de `XᵀX/N`): mostrar que dan lo mismo.
-- 📌 K-means: alterna asignación y centroides, converge a mínimo local; clustering jerárquico: enlaces simple/completo/promedio. Reducción no lineal: saber cuál dio la cátedra (**a confirmar**).
-- ⚠️ No centrar antes de PCA; no estandarizar cuando las escalas difieren; K-means sensible a la inicialización.
+- **Material:** Clase propia: `src/notebooks/explained/8_aprendizaje_no_supervisado.ipynb` — §1 (supervisado vs no supervisado, $P(X)$), §2 (reducción de dimensión y clustering como modas de $P(X)$), §3 (mezcla de dos gaussianas), §4 (MV directa: log de una suma, punto fijo, degeneración $\sigma\to0$), §5 (verosimilitud completa con $\Delta_i$ conocidas), §6 (responsabilidades por Bayes), §7 (algoritmo EM, monotonía de $\ell$, inicialización, sklearn), §8 ($K$ componentes y multivariado, $\pi_k$ por Lagrange). PCA: la clase solo lo nombra (celda 4); el desarrollo está en `books/explained/cap14_5_pca_componentes_principales.ipynb`, `notes/descomposicion-matrices-svd.md` y la clase 3 (SVD). ESL §8.5 (EM), §14.5 (PCA), §14.3 (clustering); Bishop cap. 9.
+- 🧮 MV de la mezcla: derivar $\ell$ respecto de $\mu_2$ ⇒ $\mu_2=\sum\gamma_i y_i/\sum\gamma_i$ con $\gamma_i$ que depende de $\mu_2$ (punto fijo ⇒ EM). 🧮 Estimadores con $\Delta_i$ conocidas desde $\ell_0$ y por qué el M-step cambia $\Delta_i$ por $\gamma_i$ ($\ell_0$ lineal en $\Delta_i$). 🧮 Responsabilidad $\gamma_i=E[\Delta_i\mid y_i]$ por Bayes (2 y $K$ componentes). 🧮 $\pi_k=N_k/N$ por Lagrange. 🧮 PCA desde SVD (`X = UDVᵀ` centrada ⇒ componentes = columnas de `V`, varianzas `d_j²/N`) y desde la matriz de covarianza (autovectores de `XᵀX/N`): mostrar que dan lo mismo — **no se dio en la clase 8**, está en el material de PCA.
+- 📌 EM no baja nunca $\ell$ pero converge a un máximo local; la inicialización importa (ESL: dos datos al azar, varianza total, $\pi=0{,}5$); $\ell$ no está acotada (una $\sigma_k\to0$ sobre un dato); cluster = $\operatorname{argmax}_k\gamma_{ik}$; EM ≈ QDA sin etiquetas; K-means = límite duro. K-means y jerárquico **no se dieron en la clase 8** (solo como puente); reducción no lineal tampoco (**a confirmar** si la cátedra los toma).
+- ⚠️ Confundir $\gamma_i$ (por dato) con $\pi$ (global); aplicar $\log(a+b)=\log a+\log b$; los dos $\pi$ (peso vs. $3{,}14$); creer que EM da el máximo global; elegir $K$ maximizando $\ell$; *label switching* al comparar. PCA: no centrar; no estandarizar cuando las escalas difieren.
 
 ## Derivaciones en frío, en una lista
 
@@ -54,9 +56,12 @@ cubierto ahí, figura "verificar" y hay que confirmarlo antes de citar.
 2. Gradiente y Hessiano de la log-verosimilitud logística. — M10, M1
 3. Frontera de LDA (covarianza común). — M3
 4. `EPE = σ² + Sesgo² + Var`. — M2, M3
-5. `Var` del promedio de `B` estimadores correlacionados. — M4
+5. ~~`Var` del promedio de `B` estimadores correlacionados. — M4~~ (ensambles fuera del temario)
 6. `df(λ)` de Ridge con la SVD. — M4, M5
 7. PCA: SVD ≡ autovectores de la covarianza. — M5, M8
+8. MV de la mezcla de gaussianas ⇒ punto fijo con responsabilidades (EM). — M10, M1
+9. M-step: estimadores con $\Delta_i$ conocidas y $\pi_k = N_k/N$. — M10, M1, M8
+10. Responsabilidad por Bayes. — (Bayes; candidata a movida)
 
 Reglas de práctica: el ciclo de días y el criterio de "estudiado" están en
 `tutor/README.md`; las movidas (`M#`), en `tutor/movidas.md`.
