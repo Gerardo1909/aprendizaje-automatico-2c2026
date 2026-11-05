@@ -110,6 +110,15 @@ footer { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
   <p>Datos: \(f_k(x) = \dfrac{1}{(2\pi)^{p/2}|\Sigma_k|^{1/2}}\exp\!\big(-\tfrac12 (x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)\big)\), priors \(\pi_k\).</p>
 </section>
 
+<section class="card">
+  <span class="eyebrow">Duda resuelta · ¿qué es la \(p\) de \((2\pi)^{p/2}\)?</span>
+  <p>\(p\) es la <strong>dimensión de \(x\)</strong>: cuántos predictores tiene cada observación (\(x\in\mathbb R^p\)). No tiene nada que ver con una probabilidad ni con la clase.</p>
+  <p>Sale de pensar el caso más simple, \(\Sigma = I\): las \(p\) coordenadas son normales estándar independientes, y la densidad conjunta es el producto de \(p\) densidades de una variable:</p>
+  <div class="math-scroll">$$f(x) = \prod_{j=1}^{p} \frac{1}{\sqrt{2\pi}}\, e^{-x_j^2/2} = \frac{1}{(2\pi)^{p/2}}\, e^{-\frac12 \sum_j x_j^2} = \frac{1}{(2\pi)^{p/2}}\, e^{-\frac12 x^Tx}.$$</div>
+  <p>Cada coordenada aporta un \(\sqrt{2\pi}\); con \(p\) de ellas, \((\sqrt{2\pi})^p = (2\pi)^{p/2}\). Con \(\Sigma\) general, \(|\Sigma|^{1/2}\) hace el papel del producto de los desvíos (\(\sigma_1\cdots\sigma_p\) si \(\Sigma\) es diagonal) y \(x^Tx\) pasa a ser la distancia de Mahalanobis. Chequeo: con \(p=1\) vuelve el \(\frac{1}{\sqrt{2\pi}\,\sigma}\) de siempre.</p>
+  <p><strong>Para el ejercicio:</strong> \(p\) es la misma para todas las clases (todas viven en \(\mathbb R^p\)). Decidí vos qué le pasa a ese término en el log-cociente, y por qué.</p>
+</section>
+
 <section class="stack">
   <h2>Cómo lo trabajamos</h2>
   <p>Hoja en blanco, <strong>10 minutos</strong> (es la 🧮 n.º 4 de la clase 6). Subí la escalera de pistas de a un escalón y solo si te trabás. Cuando termines, mandame tu resolución por <code>/tutor corregir</code>: tipeada o con la ruta a una foto de la hoja.</p>
