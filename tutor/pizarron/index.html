@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizarrón de la Guía B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap" rel="stylesheet">
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<style>
+/* Hoja cuadriculada: una columna de lectura; clase k en azul tinta, clase l en rojo lápiz. */
+:root {
+  --paper: #f6f7f4;
+  --grid: #e3e7e1;
+  --ink: #1d2430;
+  --muted: #5d6673;
+  --accent: #2147a8;   /* clase k / tinta */
+  --other: #c2412d;    /* clase l / lápiz rojo */
+  --card: #ffffff;
+  --line: #d4d9d2;
+  --ok: #2f7d4f;
+  --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14181f; --grid: #1c222b; --ink: #e6e9ee; --muted: #9aa3af;
+    --accent: #7ea2ff; --other: #ff8a72; --card: #1a1f27; --line: #2c333e; --ok: #6cc893;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14181f; --grid: #1c222b; --ink: #e6e9ee; --muted: #9aa3af;
+  --accent: #7ea2ff; --other: #ff8a72; --card: #1a1f27; --line: #2c333e; --ok: #6cc893;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+}
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.05rem; font-family: var(--font-body); font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 600 .78rem var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 12px; }
+.stack { display: grid; gap: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 600 .8rem var(--font-mono); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--muted); }
+.chip.now { border-color: var(--accent); color: var(--accent); }
+.k { color: var(--accent); font-weight: 600; }
+.l { color: var(--other); font-weight: 600; }
+code { font: .9em var(--font-mono); }
+.statement { border-left: 4px solid var(--accent); }
+.math-scroll { overflow-x: auto; }
+
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+details > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; list-style: none; display: flex; gap: 10px; align-items: baseline; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before { content: "+"; font-family: var(--font-mono); color: var(--accent); width: 1ch; }
+details[open] > summary::before { content: "−"; }
+details > .body { padding: 0 14px 14px 38px; display: grid; gap: 10px; }
+summary:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.step { font: 600 .75rem var(--font-mono); color: var(--muted); }
+.blank { display: inline-block; min-width: 3.5em; border-bottom: 2px solid var(--other); }
+
+.viz { display: grid; gap: 12px; }
+.viz canvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+.controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: .92rem; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 600 .85rem var(--font-body); border: 0; padding: 6px 12px; background: transparent; color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--card); }
+.readout { font: .85rem var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+input[type="range"] { accent-color: var(--accent); }
+footer { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
+</style>
+</head>
+<body>
+<main>
+
+<header class="stack">
+  <span class="eyebrow">Pizarrón · 2do parcial · Guía B</span>
+  <h1>Ejercicio 5 a, b: LDA en p dimensiones</h1>
+  <div class="chips" aria-label="Ejercicios trabajados">
+    <span class="chip now">5 a, b · en curso</span>
+  </div>
+</header>
+
+<section class="card statement">
+  <span class="eyebrow">Enunciado (Guía B, Cátedra)</span>
+  <p><strong>a)</strong> Escribí \(\log \dfrac{P(G=k\mid x)}{P(G=l\mid x)}\) usando Bayes. Indicá qué términos se cancelan y por qué. ¿Cuál se cancela <em>solo</em> porque \(\Sigma_k=\Sigma\)?</p>
+  <p><strong>b)</strong> Llegá a una expresión lineal en \(x\) y deducí</p>
+  <div class="math-scroll">$$\delta_k(x) = x^T\Sigma^{-1}\mu_k - \tfrac12\,\mu_k^T\Sigma^{-1}\mu_k + \log\pi_k .$$</div>
+  <p>Datos: \(f_k(x) = \dfrac{1}{(2\pi)^{p/2}|\Sigma_k|^{1/2}}\exp\!\big(-\tfrac12 (x-\mu_k)^T\Sigma_k^{-1}(x-\mu_k)\big)\), priors \(\pi_k\).</p>
+</section>
+
+<section class="stack">
+  <h2>Cómo lo trabajamos</h2>
+  <p>Hoja en blanco, <strong>10 minutos</strong> (es la 🧮 n.º 4 de la clase 6). Subí la escalera de pistas de a un escalón y solo si te trabás. Cuando termines, mandame tu resolución por <code>/tutor corregir</code>: tipeada o con la ruta a una foto de la hoja.</p>
+</section>
+
+<section class="card viz" aria-labelledby="viz-title">
+  <h2 id="viz-title">Para mirar antes de la cuenta</h2>
+  <p>Dos clases gaussianas en \(\mathbb R^2\): <span class="k">clase k</span> y <span class="l">clase l</span>. Las elipses son los puntos a distancia de Mahalanobis 1 y 2 de cada centro. La línea negra es donde empatan los posteriores. Cambiá las covarianzas y el prior y fijate qué le pasa a la frontera.</p>
+  <canvas id="cv" width="720" height="440" role="img" aria-label="Dos nubes gaussianas con su frontera de decisión"></canvas>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Covarianzas">
+      <button type="button" id="b-lda" aria-pressed="true">Σ común</button>
+      <button type="button" id="b-qda" aria-pressed="false">Σₖ distintas</button>
+    </div>
+    <label for="pi">\(\pi_k\) <input id="pi" type="range" min="0.05" max="0.95" step="0.05" value="0.5"></label>
+    <span class="readout" id="readout"></span>
+  </div>
+  <p class="readout">Pregunta para vos: con Σ común, ¿por qué mover \(\pi_k\) <em>traslada</em> la recta pero no la gira? Respondela con tu \(\delta_k\) de b).</p>
+</section>
+
+<section class="stack">
+  <h2>Escalera de pistas: a)</h2>
+  <details>
+    <summary><span class="step">1 · concepto</span> Qué movida va</summary>
+    <div class="body">
+      <p><strong>M3</strong>: Bayes decide punto por punto. La frontera entre \(k\) y \(l\) es donde empatan los posteriores, y como el log es creciente, empatar es lo mismo que log-cociente \(=0\).</p>
+      <p>Antes de abrir nada, nombrá las hipótesis: ¿qué sabés de \(\Sigma\) (simetría, ¿es la misma para todas las clases?)?</p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="step">2 · primer paso</span> Por dónde arrancar</summary>
+    <div class="body">
+      <p>Escribí Bayes para \(P(G=k\mid x)\) con el denominador por probabilidad total, \(\sum_m f_m(x)\pi_m\). Hacé lo mismo con \(l\) y dividí.</p>
+      <p>Mirá el denominador: ¿depende de \(k\)?</p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="step">3 · esqueleto</span> Completá los huecos</summary>
+    <div class="body math-scroll">
+      $$\log\frac{P(G=k\mid x)}{P(G=l\mid x)} = \log\frac{f_k(x)}{f_l(x)} + \log\frac{\square}{\square}$$
+      $$\log f_k(x) = -\tfrac p2\log(2\pi) - \tfrac12\log|\,\square\,| - \tfrac12\,(x-\mu_k)^T\,\square\,(x-\mu_k)$$
+      <p>Ahora restá \(\log f_l(x)\) y armá una tabla con tres columnas: <em>término</em> · <em>¿se cancela?</em> · <em>¿por qué?</em> Hay un término que se va siempre, uno que se va solo con \(\Sigma\) común, y uno más que solo aparece cuando abrís la forma cuadrática (eso es b).</p>
+    </div>
+  </details>
+
+  <h2>Escalera de pistas: b)</h2>
+  <details>
+    <summary><span class="step">1 · concepto</span> Qué hay que hacer</summary>
+    <div class="body">
+      <p>Abrir la forma cuadrática como un binomio. No es una movida del catálogo: es álgebra matricial con una <strong>hipótesis oculta</strong>. ¿Cuál? Pensá en cuándo \(a^TMb = b^TMa\).</p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="step">2 · primer paso</span> El binomio</summary>
+    <div class="body math-scroll">
+      $$(x-\mu_k)^T\Sigma^{-1}(x-\mu_k) = x^T\Sigma^{-1}x - x^T\Sigma^{-1}\mu_k - \square + \mu_k^T\Sigma^{-1}\mu_k$$
+      <p>Justificá por qué los dos términos del medio valen lo mismo. Son dos razones: una sobre escalares y otra sobre \(\Sigma^{-1}\).</p>
+    </div>
+  </details>
+  <details>
+    <summary><span class="step">3 · esqueleto</span> Separar k de l</summary>
+    <div class="body math-scroll">
+      $$\log\frac{P(G=k\mid x)}{P(G=l\mid x)} = x^T\Sigma^{-1}(\mu_k-\mu_l) - \tfrac12\big(\square - \square\big) + \log\frac{\pi_k}{\pi_l}$$
+      <p>Agrupá todo lo que tiene \(k\) y todo lo que tiene \(l\): te queda \(\delta_k(x) - \delta_l(x)\). Leé \(\delta_k\) de ahí.</p>
+      <p>Para cerrar: ¿por qué clasificar con \(\arg\max_k \delta_k(x)\) es lo mismo que con \(\arg\max_k P(G=k\mid x)\)?</p>
+    </div>
+  </details>
+</section>
+
+<section class="stack">
+  <h2>Cierre</h2>
+  <p>Abrilo recién cuando tengas tu resolución.</p>
+  <details>
+    <summary><span class="step">después</span> Señal, chequeo y trampa</summary>
+    <div class="body">
+      <p><strong>La señal:</strong> "log-cociente de posteriores", "covarianza común", "deducí \(\delta_k\)". Siempre es Bayes + log + tachar lo que no depende de \(k\).</p>
+      <p><strong>Chequeo de 30 segundos:</strong> poné \(p=1\), \(\Sigma=\sigma^2\). Tu \(\delta_k\) tiene que dar \(\dfrac{x\mu_k}{\sigma^2} - \dfrac{\mu_k^2}{2\sigma^2} + \log\pi_k\), que es lo que usás en el ej. 3. Con priors iguales, la frontera tiene que pasar por el punto medio \((\mu_k+\mu_l)/2\).</p>
+      <p><strong>Trampa:</strong> meter en la misma bolsa todo lo que "se cancela". La constante \((2\pi)^{p/2}\) y el denominador de Bayes se van <em>siempre</em>; \(\log|\Sigma|\) y \(x^T\Sigma^{-1}x\) se van <em>solo</em> por \(\Sigma\) común. Esa distinción es lo que pregunta a).</p>
+    </div>
+  </details>
+</section>
+
+<footer>
+  <span>Fuente: <code>tutor/pizarron/index.html</code>. Referencia: clase 6, §2 y §3 (<code>src/notebooks/explained/6_metodos_lineales_clasificacion.ipynb</code>); ESL §4.3.</span>
+  <span>Resultados de la guía: mirá solo la línea del 5 cuando termines.</span>
+</footer>
+
+</main>
+
+<script>
+(() => {
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const X0 = -4, X1 = 6.5, Y0 = -3.4, Y1 = 3.6;
+  const sx = x => (x - X0) / (X1 - X0) * W;
+  const sy = y => H - (y - Y0) / (Y1 - Y0) * H;
+  const mu = [[0, 0], [2.6, 1]];
+  const S_common = [[1.6, 0.7], [0.7, 0.9]];
+  const S_qda = [S_common, [[0.45, -0.25], [-0.25, 1.8]]];
+  let mode = 'lda';
+
+  const inv = ([[a, b], [c, d]]) => { const t = a * d - b * c; return [[d / t, -b / t], [-c / t, a / t]]; };
+  const det = ([[a, b], [c, d]]) => a * d - b * c;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  function delta(x, y, k, S, logpi) {
+    const Si = inv(S), dx = x - mu[k][0], dy = y - mu[k][1];
+    const q = dx * (Si[0][0] * dx + Si[0][1] * dy) + dy * (Si[1][0] * dx + Si[1][1] * dy);
+    return -0.5 * Math.log(det(S)) - 0.5 * q + logpi;
+  }
+
+  function ellipse(k, S, r, color) {
+    // Cholesky de S: L L^T = S
+    const l11 = Math.sqrt(S[0][0]), l21 = S[1][0] / l11, l22 = Math.sqrt(S[1][1] - l21 * l21);
+    ctx.beginPath();
+    for (let i = 0; i <= 100; i++) {
+      const t = i / 100 * 2 * Math.PI, u = r * Math.cos(t), v = r * Math.sin(t);
+      const x = mu[k][0] + l11 * u, y = mu[k][1] + l21 * u + l22 * v;
+      i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y));
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  }
+
+  function draw() {
+    const pk = +document.getElementById('pi').value;
+    const S = mode === 'lda' ? [S_common, S_common] : S_qda;
+    const cK = css('--accent'), cL = css('--other'), ink = css('--ink');
+    ctx.clearRect(0, 0, W, H);
+
+    // regiones y frontera en una grilla de 4 px
+    const step = 4, cols = W / step, rows = H / step, sign = [];
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const x = X0 + (i + .5) / cols * (X1 - X0), y = Y1 - (j + .5) / rows * (Y1 - Y0);
+      sign.push(delta(x, y, 0, S[0], Math.log(pk)) > delta(x, y, 1, S[1], Math.log(1 - pk)));
+    }
+    ctx.globalAlpha = 0.10;
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      ctx.fillStyle = sign[j * cols + i] ? cK : cL;
+      ctx.fillRect(i * step, j * step, step, step);
+    }
+    ctx.globalAlpha = 1; ctx.fillStyle = ink;
+    for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++) {
+      const s = sign[j * cols + i];
+      if (s !== sign[j * cols + i + 1] || s !== sign[(j + 1) * cols + i]) ctx.fillRect(i * step + 1, j * step + 1, 3, 3);
+    }
+
+    for (const r of [1, 2]) { ellipse(0, S[0], r, cK); ellipse(1, S[1], r, cL); }
+    [[0, cK, 'μₖ'], [1, cL, 'μₗ']].forEach(([k, c, lab]) => {
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(sx(mu[k][0]), sy(mu[k][1]), 5, 0, 7); ctx.fill();
+      ctx.font = '600 15px "IBM Plex Mono", monospace'; ctx.fillText(lab, sx(mu[k][0]) + 8, sy(mu[k][1]) - 8);
+    });
+
+    document.getElementById('readout').textContent =
+      `πₖ = ${pk.toFixed(2)} · πₗ = ${(1 - pk).toFixed(2)} · frontera ${mode === 'lda' ? 'recta' : 'curva'}`;
+  }
+
+  const setMode = m => {
+    mode = m;
+    document.getElementById('b-lda').setAttribute('aria-pressed', m === 'lda');
+    document.getElementById('b-qda').setAttribute('aria-pressed', m === 'qda');
+    draw();
+  };
+  document.getElementById('b-lda').addEventListener('click', () => setMode('lda'));
+  document.getElementById('b-qda').addEventListener('click', () => setMode('qda'));
+  document.getElementById('pi').addEventListener('input', draw);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  document.fonts ? document.fonts.ready.then(draw) : draw();
+  draw();
+})();
+</script>
+</body>
+</html>

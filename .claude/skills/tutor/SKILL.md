@@ -139,3 +139,18 @@ El alumno escribió `tutor/fichas/<n>_<tema>.md` desde `_plantilla.md`, sin mira
 Si hubo un error nuevo o una laguna, que quede en el diario. Si el alumno descubrió
 que un dato del mapa estaba mal (por ejemplo, una clase no cubrió lo que se
 esperaba), corregí `referencias/mapa_parcial.md`. No hagas commits salvo que te lo pidan.
+
+## Pizarrón (artifact)
+
+Para ejercicios de la guía que piden LaTeX o visuales, el tutor trabaja sobre un
+único artifact que se va actualizando:
+
+- **Fuente:** `tutor/pizarron/index.html` (viaja con el repo).
+- **Artifact:** slug `4f90fe46-c1b1-4d50-a7e0-baa9e54ccf21` · https://claude.ai/artifact/Aprxc388Z7TBMexddyU3Pe
+- **Cómo se actualiza:** editás el HTML local y lo republicás con `publish_files`
+  (slug + `base_version` sacado de `get_artifact`). Si el slug no existe (otra cuenta),
+  publicás uno nuevo y actualizás esta sección.
+- **Qué lleva cada ejercicio:** enunciado, un visual si ayuda, la escalera de
+  pistas en `<details>` (escalones 1–3, **nunca la resolución**) y el cierre
+  (señal, chequeo de 30 s, trampa) plegado. El chip del encabezado registra los
+  ejercicios ya trabajados.
