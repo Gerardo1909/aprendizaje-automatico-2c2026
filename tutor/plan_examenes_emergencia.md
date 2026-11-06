@@ -51,7 +51,7 @@ Todo lo demás del plan es extra. No sumes temas ni releas notebooks enteras.
 
 ## Del 8 al 12: recuperatorio del 1P
 
-A detallar el sábado. La base:
+**Detallado en `tutor/plan_recup_1P_guia_A.md`** (sobre la Guía A, verificada). La base:
 
 - Las tres entradas del 1P en `tutor/diario_errores.md` (Ej. 2, 4 y 5), derivadas en frío.
 - Una variante con giro de cada una (`/tutor practica`).
